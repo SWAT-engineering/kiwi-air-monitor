@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "doc"
+		},
+		{
+			"path": "device\\design"
+		},
+		{
+			"path": "device\\software"
+		},
+		{
+			"path": "server"
+		}
+	],
+	"settings": {}
+}
