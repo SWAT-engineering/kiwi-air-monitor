@@ -95,12 +95,12 @@ uint16_t EspEasyMHZ19::readCO2() {
     else {
         // Check for stable reads and allow unstable reads the first 3 minutes after reset.
         if (hardware->nrUnknownResponses > 10 && hardware->initTimePassed) {
-            reset();
+            //reset();
         }
         return 0;
     }
     if (expectReset) {
-        reset();
+        //reset();
         return 0;
     }
     if (!isReady()) {
