@@ -3,16 +3,18 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <U8g2lib.h>
-#include "MHZ19.h"                        
+//#include "MHZ19.h"                        
 #include <SoftwareSerial.h> 
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 #include "user-config.h"
+#include "sensors/sensors.hpp"
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-MHZ19 myMHZ19;
+//MHZ19 myMHZ19;
+Sensors *sensors;
 Adafruit_BME280 bme; // I2C
 
 WiFiClientSecure sslClient;
@@ -28,7 +30,7 @@ static char feed_publishCO2[256];
 
 U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, D3, D4);
 
-SoftwareSerial mySerial(D2, D1); 
+//SoftwareSerial mySerial(D2, D1); 
 
 #define PUBLISHER(__target, __name) { \
   sprintf(feed_##__target, "devices/%s/sensor/%s", WiFi.macAddress().c_str(), __name); \
@@ -38,7 +40,8 @@ SoftwareSerial mySerial(D2, D1);
 
 void setup() {
   Serial.begin(74880);
-  mySerial.begin(9600);
+  //mySerial.begin(9600);
+  sensors = new Sensors();
   Wire.begin(D4, D3);
 
   if (!bme.begin(0x76, &Wire))
@@ -54,9 +57,11 @@ void setup() {
 
   u8g2.begin();
 
+/*
   myMHZ19.begin(mySerial);
   myMHZ19.autoCalibration(false);
   myMHZ19.getCO2(); // clear cache
+  */
 
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -70,17 +75,21 @@ void setup() {
 
 
 
-void renderScreen(float,float, uint16_t);
-void reportWifi(float,float,float,int16_t);
+void renderScreen(float,float, double);
+void reportWifi(float,float,float,double);
 
 static unsigned long nextDisplay = 0;
 void loop() { 
   if (millis() > nextDisplay) {
+    sensors->update(millis());
     nextDisplay += 10000;
     float temp = bme.readTemperature();
     float humidity = bme.readHumidity();
     float pressure = bme.readPressure();
-    int16_t co2 = myMHZ19.getCO2(true, true);
+    double co2 = sensors->hasCO2() ? sensors->getCO2() : sqrt(-1);
+    Serial.print("Got co2: ");
+    Serial.println(co2);
+    //int16_t co2 myMHZ19.getCO2(true, true);
     renderScreen(temp, humidity, co2);
     reportWifi(temp, humidity, pressure, co2);
   }
@@ -88,15 +97,15 @@ void loop() {
 
 static bool displayState = true;
 
-void renderScreen(float temperature, float humidity, uint16_t co2) {
+void renderScreen(float temperature, float humidity, double co2) {
    u8g2.clearBuffer();					// clear the internal memory
   u8g2.setFont(u8g2_font_logisoso28_tf);	// choose a suitable font
   u8g2.setCursor(0,32);
-  if (displayState) {
+  if (displayState && !isnan(temperature)) {
     u8g2.printf("%.1f\xb0%.1f%%", temperature, humidity);
   }
-  else {
-    u8g2.printf("C: %d", co2);
+  else if (!isnan(co2)) {
+    u8g2.printf("C: %.0f", co2);
   }
   displayState = !displayState;
   u8g2.sendBuffer();					// transfer internal memory to the display
@@ -124,7 +133,7 @@ bool MQTT_connect() {
   return true;
 }
 
-void reportWifi(float temperature, float humidity, float pressure, int16_t co2) {
+void reportWifi(float temperature, float humidity, float pressure, double co2) {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("No Wifi connection");
     return;
@@ -133,7 +142,9 @@ void reportWifi(float temperature, float humidity, float pressure, int16_t co2) 
     publishTemp->publish(temperature);
     publishHumidity->publish(humidity);
     publishPressure->publish(pressure);
-    publishCO2->publish(co2);
+    if (!isnan(co2)) {
+      publishCO2->publish(co2);
+    }
   }
 }
 
