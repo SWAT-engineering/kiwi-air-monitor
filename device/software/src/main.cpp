@@ -35,6 +35,8 @@ U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, D3, D4);
 
 void setup() {
   Serial.begin(74880);
+  // setup I2C on the correct pins
+  Wire.begin(D4, D3);
   sensors = new Sensors();
 
   u8g2.begin();

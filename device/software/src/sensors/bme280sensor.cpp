@@ -2,7 +2,6 @@
 #include <Wire.h>
 
 BME280Sensor::BME280Sensor(){
-    Wire.begin(D4, D3);
 
     valid = bme.begin(0x76, &Wire);
 
@@ -10,12 +9,14 @@ BME280Sensor::BME280Sensor(){
         Serial.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
         Serial.print("SensorID was: 0x");
         Serial.println(bme.sensorID(), 16);
+        return;
     }
-    bme.setSampling(Adafruit_BME280::MODE_FORCED,
-                    Adafruit_BME280::SAMPLING_X1, // temperature
-                    Adafruit_BME280::SAMPLING_X1, // pressure
-                    Adafruit_BME280::SAMPLING_X1, // humidity
-                    Adafruit_BME280::FILTER_OFF);
+    bme.setSampling(Adafruit_BME280::MODE_NORMAL,
+                    Adafruit_BME280::SAMPLING_X8, // temperature
+                    Adafruit_BME280::SAMPLING_X8, // pressure
+                    Adafruit_BME280::SAMPLING_X8, // humidity
+                    Adafruit_BME280::FILTER_OFF,
+                    Adafruit_BME280::STANDBY_MS_1000);
 }
 
 
@@ -26,7 +27,6 @@ void BME280Sensor::measure(float &temp, float &humidity, float &pressure) {
         pressure = NAN;
     }
     else {
-        bme.takeForcedMeasurement();
         temp = bme.readTemperature();
         humidity = bme.readHumidity();
         pressure = bme.readPressure();
