@@ -1,16 +1,17 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <U8g2lib.h>
 #include <SoftwareSerial.h> 
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 #include "user-config.h"
 #include "sensors/sensors.hpp"
+#include "output/display.hpp"
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 Sensors *sensors;
+Display *display;
 
 WiFiClientSecure sslClient;
 Adafruit_MQTT_Client mqtt(&sslClient, MQTT_SERVER, MQTT_PORT, MQTT_USERNAME, MQTT_PASSWORD);
@@ -23,23 +24,21 @@ static char feed_publishPressure[256];
 Adafruit_MQTT_Publish *publishCO2;
 static char feed_publishCO2[256];
 
-U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, D3, D4);
-
-//SoftwareSerial mySerial(D2, D1); 
 
 #define PUBLISHER(__target, __name) { \
-  sprintf(feed_##__target, "devices/%s/sensor/%s", WiFi.macAddress().c_str(), __name); \
+  sprintf(feed_##__target, "kiwi/%s/sensor/%s", WiFi.macAddress().c_str(), __name); \
   __target = new Adafruit_MQTT_Publish(&mqtt, (const char *)feed_##__target); \
 }
 
 
+static unsigned long lastTick = 0;
+static unsigned long sleepTime = 1;
 void setup() {
   Serial.begin(74880);
   // setup I2C on the correct pins
   Wire.begin(D4, D3);
   sensors = new Sensors();
-
-  u8g2.begin();
+  display = new Display(sensors);
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   sslClient.setInsecure();
@@ -47,42 +46,34 @@ void setup() {
   PUBLISHER(publishHumidity, "Humidity");
   PUBLISHER(publishPressure, "Pressure");
   PUBLISHER(publishCO2, "CO2");
-  delay(100);
 }
 
 
+unsigned long min(unsigned long a, unsigned long b) {
+  return a > b ? a : b;
+}
 
-void renderScreen(double,double, double);
+//void renderScreen(double,double, double);
 void reportWifi(double,double,double,double);
 
-static unsigned long nextDisplay = 0;
+static unsigned long lastMQTTReport = 0;
+#define MQTT_EVERY (10*1000)
 void loop() { 
-  if (millis() > nextDisplay) {
-    sensors->update(millis());
-    nextDisplay += 10000;
-    double temp = sensors->getTemperature();
-    double humidity = sensors->getHumidity();
-    double pressure = sensors->getPressure();
-    double co2 = sensors->hasCO2() ? sensors->getCO2() : sqrt(-1);
-    renderScreen(temp, humidity, co2);
-    reportWifi(temp, humidity, pressure, co2);
+  unsigned long tick = millis();
+  if (tick - lastTick >= sleepTime) {
+    sleepTime = sensors->update(tick);
+    sleepTime = min(sleepTime, display->render(tick));
+    if (tick - lastMQTTReport >= MQTT_EVERY) {
+      lastMQTTReport += MQTT_EVERY;
+      sleepTime = min(sleepTime, lastMQTTReport - tick);
+      double temp = sensors->getTemperature();
+      double humidity = sensors->getHumidity();
+      double pressure = sensors->getPressure();
+      double co2 = sensors->getCO2();
+      reportWifi(temp, humidity, pressure, co2);
+    }
+    lastTick = tick;
   }
-}
-
-static bool displayState = true;
-
-void renderScreen(double temperature, double humidity, double co2) {
-   u8g2.clearBuffer();					// clear the internal memory
-  u8g2.setFont(u8g2_font_logisoso28_tf);	// choose a suitable font
-  u8g2.setCursor(0,32);
-  if (displayState) {
-    u8g2.printf("%.1f\xb0%.1f%%", temperature, humidity);
-  }
-  else  {
-    u8g2.printf("C: %.0f", co2);
-  }
-  displayState = !displayState;
-  u8g2.sendBuffer();					// transfer internal memory to the display
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
