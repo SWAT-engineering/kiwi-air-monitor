@@ -11,6 +11,7 @@ BME280Sensor::BME280Sensor(){
         Serial.println(bme.sensorID(), 16);
         return;
     }
+    Serial.println("Sensor found!");
     bme.setSampling(Adafruit_BME280::MODE_NORMAL,
                     Adafruit_BME280::SAMPLING_X8, // temperature
                     Adafruit_BME280::SAMPLING_X8, // pressure

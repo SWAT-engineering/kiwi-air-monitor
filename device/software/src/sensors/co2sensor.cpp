@@ -6,7 +6,7 @@ void CO2Sensor::init() {
         delete connection;
         connection = nullptr;
     }
-    connection = new SoftwareSerial(D2, D1);
+    connection = new SoftwareSerial(D5, D8);
     connection->begin(9600);
     hardware.begin(*connection);
     hardware.autoCalibration(false);

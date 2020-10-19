@@ -18,10 +18,10 @@ static unsigned long displayTime[] = {
     #ifdef KIWI_SCREEN_64
     20 * 1000,
     #else
-    10 * 1000,
-    10 * 1000,
+    5 * 1000,
+    5 * 1000,
     #endif
-    50 * 1000
+    10 * 1000
 };
 
 static DisplayState nextState[] = {
@@ -32,8 +32,8 @@ static DisplayState nextState[] = {
     /* SLEEP =>*/ SHOW_ALL
 #else
     /* BOOT =>*/  SHOW_CO2,
-    /* SHOW_CO2 =>*/  SHOW_TEMPERATURE,
-    /* SHOW_TEMPERATURE =>*/SLEEP,
+    /* SHOW_TEMPERATURE =>*/  SLEEP,
+    /* SHOW_CO2 =>*/SHOW_TEMPERATURE,
     /* SLEEP =>*/ SHOW_CO2
 #endif
 };
@@ -42,9 +42,9 @@ static DisplayState nextState[] = {
 Display::Display(Sensors *sensor) : source{sensor}, visible{true},
         state{INIT}, lastTick{0}, currentScreenTime{0}  {
     #ifdef KIWI_SCREEN_64
-    u8g2 = new U8G2_SSD1306_128X64_NONAME_1_HW_I2C(U8G2_R0, U8X8_PIN_NONE, D3, D4);
+    u8g2 = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE, D1, D2);
     #else
-    u8g2 = new U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE, D3, D4);
+    u8g2 = new U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE, D1, D2);
     #endif
     u8g2->begin();
 }
@@ -104,5 +104,4 @@ void Display::renderScreen(DisplayState state) {
         break;
     }
     u8g2->sendBuffer();
-
 }
