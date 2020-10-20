@@ -18,7 +18,7 @@ Kiwi monitor is an open source CO2/Humidity/Temperature sensor intended for moni
 
 ## Hardware
 
-The hardware is build around the ESP8266 platform. The costs (in the Netherlands) are roughly €45-50 per device. The bill of materials and schemas can be found in the [device/design directory](device/design/).
+The hardware is build around the ESP8266 platform. The costs (in the Netherlands) are roughly €45-50 per device (add extra €25 for the PM2.5&PM10 sensor). The bill of materials and schemas can be found in the [device/design directory](device/design/).
 
 ## Software
 
