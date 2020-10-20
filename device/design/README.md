@@ -13,7 +13,15 @@ We link to a Dutch store for easy buying, but no need to buy it there.
 Optional:
 
 - [Nova SDS011](https://www.tinytronics.nl/shop/nl/sensoren/temperatuur-lucht-vochtigheid/nova-sds011-hoge-precisie-laser-stofsensor): if you want to measure PM2.5 & PM10 fine dust particles
-- [DS18B20 temperature sensor](https://www.tinytronics.nl/shop/nl/sensoren/temperatuur-lucht-vochtigheid/ds18b20-to-92-thermometer-temperatuur-sensor): if you want to measure temperature more accuratly
+- [DS18B20 temperature sensor](https://www.tinytronics.nl/shop/nl/sensoren/temperatuur-lucht-vochtigheid/ds18b20-to-92-thermometer-temperatuur-sensor): if you want to measure temperature more accurately
+
+Stuff we assume you already have:
+
+- USB charger (1A should be enough)
+- Micro-USB cable
+- Wires to connect sensors to the ESP8266
+- Breadboard & jumper wires for experimentation
+- Soldering iron
 
 ## Schema
 

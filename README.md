@@ -3,7 +3,7 @@
 </p>
 
 
-Kiwi monitor is an open source CO2/Humidity/Temperature sensor intended for monitoring the quality of the air in a room. Kiwi was created to support teachers with a notification to ventilate their classroom.
+Kiwi monitor is an open source CO2/Humidity/Temperature sensor intended for monitoring the indoor air quality. Kiwi was created to support teachers with a notification to ventilate their classroom.
 
 ## Features
 
