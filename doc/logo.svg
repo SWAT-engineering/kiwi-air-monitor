@@ -28,7 +28,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
      inkscape:cx="274.95661"
-     inkscape:cy="154.35216"
+     inkscape:cy="113.94606"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -56,32 +56,34 @@
      id="layer1">
     <path
        fill="currentColor"
-       d="M 43.70203,13.329282 C 43.476129,9.0129166 39.602304,5.776891 35.280238,5.776891 H 34.612509 C 30.848427,5.776891 27.183402,4.6188773 24.0842,2.4817169 21.09189,0.41795779 17.240157,-0.48422494 13.166085,0.43648571 11.882649,0.72581156 2.6627175,3.371072 2.6684179,13.758282 c 0.00282,5.056068 2.7564307,9.463647 6.8404802,11.830274 v 5.272705 c 0,0.629959 0.5102379,1.140198 1.1401979,1.140198 h 1.140199 c 0.629959,0 1.1402,-0.510239 1.1402,-1.140198 v -3.8667 c 1.09459,0.2822 2.237639,0.446105 3.420595,0.446105 0.387668,0 0.761082,-0.05203 1.140199,-0.0841 v 3.504686 c 0,0.629958 0.510238,1.140198 1.140198,1.140198 h 1.140199 c 0.629959,0 1.140198,-0.51024 1.140198,-1.140198 v -4.235126 c 1.014778,-0.360588 1.986798,-0.81168 2.874728,-1.390329 3.259541,-2.124333 6.950221,-3.496135 10.841148,-3.496135 1.815767,0 1.140912,-0.0221 1.642601,-0.05559 l 5.302634,9.723042 c 0.203811,0.372706 0.591478,0.594331 1.001239,0.594331 0.09336,0 0.188132,-0.01141 0.281485,-0.03564 0.505251,-0.128271 0.858714,-0.583639 0.858714,-1.104566 0,0 0.01,-17.120084 -0.01141,-17.531981 z m -7.969988,2.139297 c -0.944228,0 -1.710299,-0.766071 -1.710299,-1.710297 0,-0.94494 0.766071,-1.710299 1.710299,-1.710299 0.944227,0 1.710298,0.765359 1.710298,1.710299 0,0.944226 -0.766071,1.710297 -1.710298,1.710297 z m 5.700993,10.920964 -2.840521,-5.207856 c 1.077487,-0.41546 2.047368,-1.040432 2.840521,-1.851398 z"
+       d="M 48.976426,13.329282 C 48.750525,9.0129166 44.8767,5.776891 40.554634,5.776891 h -0.667729 c -3.764082,0 -7.429107,-1.1580137 -10.528309,-3.2951741 C 26.366286,0.41795779 22.514553,-0.48422494 18.440481,0.43648571 17.157045,0.72581156 7.9371139,3.371072 7.9428143,13.758282 c 0.00282,5.056068 2.7564307,9.463647 6.8404797,11.830274 v 5.272705 c 0,0.629959 0.510238,1.140198 1.140198,1.140198 h 1.140199 c 0.629959,0 1.1402,-0.510239 1.1402,-1.140198 v -3.8667 c 1.09459,0.2822 2.237639,0.446105 3.420595,0.446105 0.387668,0 0.761082,-0.05203 1.140199,-0.0841 v 3.504686 c 0,0.629958 0.510238,1.140198 1.140198,1.140198 h 1.140199 c 0.629959,0 1.140198,-0.51024 1.140198,-1.140198 v -4.235126 c 1.014778,-0.360588 1.986798,-0.81168 2.874728,-1.390329 3.259541,-2.124333 6.950221,-3.496135 10.841148,-3.496135 1.815767,0 1.140912,-0.0221 1.642601,-0.05559 l 5.302634,9.723042 c 0.203811,0.372706 0.591478,0.594331 1.001239,0.594331 0.09336,0 0.188132,-0.01141 0.281485,-0.03564 0.505251,-0.128271 0.858714,-0.583639 0.858714,-1.104566 0,0 0.01,-17.120084 -0.01141,-17.531981 z m -7.969988,2.139297 c -0.944228,0 -1.710299,-0.766071 -1.710299,-1.710297 0,-0.94494 0.766071,-1.710299 1.710299,-1.710299 0.944227,0 1.710298,0.765359 1.710298,1.710299 0,0.944226 -0.766071,1.710297 -1.710298,1.710297 z m 5.700993,10.920964 -2.840521,-5.207856 c 1.077487,-0.41546 2.047368,-1.040432 2.840521,-1.851398 z"
        id="path1402"
-       style="stroke-width:0.0712623;fill:#90be92;fill-opacity:1"
+       style="fill:#90be92;fill-opacity:1;stroke-width:0.0712623"
        inkscape:export-filename="C:\Users\Davy\boot-screen.png"
-       inkscape:export-xdpi="25.459507"
-       inkscape:export-ydpi="25.459507" />
+       inkscape:export-xdpi="60.748791"
+       inkscape:export-ydpi="60.748791" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.2778px;line-height:1.25;font-family:Grandstander;-inkscape-font-specification:Grandstander;letter-spacing:0px;word-spacing:0px;fill:#627164;fill-opacity:1;stroke:none;stroke-width:0.264583;"
-       x="51.371101"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.2778px;line-height:1.25;font-family:Grandstander;-inkscape-font-specification:Grandstander;letter-spacing:0px;word-spacing:0px;fill:#627164;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="55.587166"
        y="28.061859"
        id="text1415"
        inkscape:export-filename="C:\Users\Davy\boot-screen.png"
-       inkscape:export-xdpi="25.459507"
-       inkscape:export-ydpi="25.459507"><tspan
+       inkscape:export-xdpi="60.748791"
+       inkscape:export-ydpi="60.748791"><tspan
          sodipodi:role="line"
          id="tspan1413"
-         x="51.371101"
+         x="55.587166"
          y="28.061859"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.2778px;font-family:Grandstander;-inkscape-font-specification:Grandstander;stroke-width:0.264583;fill:#627164;fill-opacity:1;">Kiwi</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.2778px;font-family:Grandstander;-inkscape-font-specification:Grandstander;fill:#627164;fill-opacity:1;stroke-width:0.264583">Kiwi</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.5778px;line-height:1.25;font-family:Grandstander;-inkscape-font-specification:Grandstander;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#627164;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="63.900497"
        y="53.143456"
-       id="text843"><tspan
+       id="text843"
+       inkscape:export-xdpi="60.748791"
+       inkscape:export-ydpi="60.748791"><tspan
          sodipodi:role="line"
          id="tspan841"
          x="63.900497"
@@ -92,7 +94,9 @@
        style="font-style:normal;font-weight:normal;font-size:7.76111px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#90be92;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="66.085251"
        y="61.307735"
-       id="text847"><tspan
+       id="text847"
+       inkscape:export-xdpi="60.748791"
+       inkscape:export-ydpi="60.748791"><tspan
          sodipodi:role="line"
          x="66.085251"
          y="61.307735"
