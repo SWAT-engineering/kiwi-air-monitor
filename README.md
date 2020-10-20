@@ -8,7 +8,7 @@ Kiwi monitor is an open source CO2/Humidity/Temperature sensor intended for moni
 ## Features
 
 - Monitor CO2, Humidity, Temperature, Atmospheric Pressure 
-- Display current measurements and it's trend on a small display
+- Display current measurements and its trend on a small display
 - Blink a warning light if certain thresholds are reached (> 1000ppm CO2 for example)
 - Optionally: publish sensor readings to a (self hosted) MQTT server to allow building wide monitoring
 - Optionally: measure PM2.5 & PM10 concentrations
@@ -18,7 +18,7 @@ Kiwi monitor is an open source CO2/Humidity/Temperature sensor intended for moni
 
 ## Hardware
 
-The hardware is build around the ESP8266 platform. The costs (in the Netherlands) are roughly €45-50 per device (add ). The bill of materials and schemas can be found in the [device/design directory](device/design/).
+The hardware is build around the ESP8266 platform. The costs (in the Netherlands) are roughly €45-50 per device. The bill of materials and schemas can be found in the [device/design directory](device/design/).
 
 ## Software
 
@@ -39,7 +39,7 @@ The documentation related to MQTT messages can be found in the [server directory
 
 ### MQTT-to-influxdb Forwarder
 
-To help with a basic setup, we provide a simple forwarder of MQTT messages to and influxdb. Afterwards you can create a dashboard in grafana to your own liking.
+To help with a basic setup, we provide a simple forwarder of MQTT messages to an influxdb. Afterwards you can create a dashboard in [granfana](https://grafana.com/) to your own liking.
 
 
 ## Quality of measurements
@@ -48,7 +48,7 @@ Due to the cost-cutting concern, we've focussed more on precision instead of acc
 
 The sensors used specifically:
 
-- Unlike many cheaper CO2 sensors, the MH-Z19B is a NDIR style CO2 sensor, that after initial calibration has quite a good sensitivity. However, the accuracy cannot compete with industrial grade sensors (which cost 4 or 5 times as much). For our purposes, it might be a 50 ppm off, but the trend and the rough values are more than enough.
+- Unlike many cheaper CO2 sensors, the MH-Z19B is a NDIR style CO2 sensor, that after initial calibration has quite a good sensitivity. However, the accuracy cannot compete with industrial grade sensors (which cost 4 or 5 times as much). For our purposes, it might be 50 ppm off, but the trend and the rough values are more than enough.
 - The BME280 is a cheap sensor that measures humidity, temperature and atmospheric pressure. [Tests](http://www.kandrsmith.org/RJS/Misc/Hygrometers/calib_many.html) have shown it to be accurate and stable. Depeding on how you configure it, the temperature is either a bit over the actual value or under. To save power and spare the chip, we've configured it in a sleep mode.
 - The optionally DS18B20 temperature sensor provides a more accurate temperature measurement. In most cases it's not needed, but we have room in both the code and the board to add this.
-- The optional SDS011 is a sensor that is also used in [Luftdaten](https://luftdaten.info/) project and advised by [the Dutch government](https://www.samenmetenaanluchtkwaliteit.nl/sensoren-voor-fijn-stof-pm25pm10).
+- The optional SDS011 is a sensor that is also used in [Luftdaten](https://luftdaten.info/) project and is advised by [the Dutch government](https://www.samenmetenaanluchtkwaliteit.nl/sensoren-voor-fijn-stof-pm25pm10).
