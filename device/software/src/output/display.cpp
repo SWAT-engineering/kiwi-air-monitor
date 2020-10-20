@@ -1,4 +1,5 @@
 #include "output/display.hpp"
+#include "output/logo.h"
 
 enum DisplayState: unsigned int {
     INIT = 0,
@@ -14,7 +15,7 @@ enum DisplayState: unsigned int {
 
 static unsigned long displayTime[] = {
     0,
-    10 * 1000,
+    50 * 1000,
     #ifdef KIWI_SCREEN_64
     20 * 1000,
     #else
@@ -81,9 +82,7 @@ void Display::renderScreen(DisplayState state) {
     switch (state)
     {
     case BOOT:
-        u8g2->setFont(u8g2_font_logisoso22_tf);
-        u8g2->setCursor(0, 32);
-        u8g2->println("Kiwi Monitor");
+        u8g2->drawXBM((128 - KIWI_LOGO_WIDTH) / 2, 0, KIWI_LOGO_WIDTH, KIWI_LOGO_HEIGHT, KIWI_LOGO);
         break;
 #ifdef KIWI_SCREEN_64
     case SHOW_ALL:
