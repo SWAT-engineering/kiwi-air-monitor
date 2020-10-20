@@ -28,18 +28,17 @@ In Summary, labels on the Wemos D1 Mini
 | | TX | D8 |
 | | RX | D5 |
 | BME280 & SSD1306 | VCC | 3.3V |
-| | VCC | 3.3V |
 | | GND | G |
 | | SCL/SCK | D1 |
 | | SDA | D2 |
-|WS2812B | VSS | G |
-| | VDD | 5V|
+|WS2812B | VDD | 5V |
+| | VSS | G |
 | | DIN | D4|
 |SDS011 (opt) | VCC | 5V |
 | | GND | G |
 | | TX | D3 |
 | | RX | D6 |
-| Optional DS18B20 | GND (left) | G |
+|DS18B20 (opt) | GND (left) | G |
 | | DQ (middle) | D7 |
 | | VDD (right) | 5V |
 
