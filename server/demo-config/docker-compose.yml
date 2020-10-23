@@ -1,0 +1,45 @@
+version: "3"
+services:
+  mqtt:
+    image: eclipse-mosquitto:1.6
+    volumes:
+      - "./conf/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"
+      - './data/mosquitto:/mosquitto/data'
+    networks:
+      - kiwi-private
+    ports:
+      - "8883:1883"
+    restart: unless-stopped
+
+  influxdb: # this influxdb is only on internal network, so less security is needed
+    image: influxdb:1.8
+    networks:
+      - kiwi-private
+    volumes:
+      - "./data/influx:/var/lib/influxdb"
+    environment:  # no conf file needed
+      INFLUXDB_HOSTNAME: influxdb
+      INFLUXDB_HTTP_ENABLED: 'true'
+      INFLUXDB_HTTP_FLUX_ENABLED: 'true'
+      INFLUXDB_DB: kiwi
+      #INFLUXDB_ADMIN_USER: admin
+      #INFLUXDB_ADMIN_PASSWORD: secret # move this towards secret file ?
+      INFLUXDB_REPORTING_DISABLED: 'true'
+      INFLUXDB_BIND_ADDRESS: 0.0.0.0:8088
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+  
+  grafana:
+    image: grafana/grafana:7.2.2
+    networks:
+      - kiwi-private
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./data/grafana:/var/lib/grafana"
+      - './conf/grafana.ini:/etc/grafana/grafana.ini'
+
+networks:
+  kiwi-private:

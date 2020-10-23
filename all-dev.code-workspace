@@ -10,7 +10,10 @@
 			"path": "device\\software"
 		},
 		{
-			"path": "server"
+			"path": "server\\generator"
+		},
+		{
+			"path": "server\\demo-config"
 		}
 	],
 	"settings": {
