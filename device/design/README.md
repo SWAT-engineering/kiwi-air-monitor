@@ -4,7 +4,7 @@
 
 We link to a Dutch store for easy buying, but no need to buy it there.
 
-- [Wemos D1 Mini (ESP8266)](https://www.tinytronics.nl/shop/nl/communicatie/wi-fi/d1-mini-esp8266-12f-ch340) 
+- [Wemos/LOLIN D1 Mini V3(ESP8266)](https://www.tinytronics.nl/shop/nl/communicatie/wi-fi/wemos-d1-mini-v2-esp8266-12f-ch340) 
 - [Winsen MH-Z19B CO2 Sensor](https://www.tinytronics.nl/shop/nl/sensoren/temperatuur-lucht-vochtigheid/winsen-mh-z19b-co2-sensor-met-kabel): be sure to get the __B version__.
 - [BME280 I2C Temperature/Humidity Sensor](https://www.tinytronics.nl/shop/nl/sensoren/temperatuur-lucht-vochtigheid/bme280-digitale-barometer-druk-en-vochtigheid-sensor-module): make sure you get a version that has I2C enabled by default, or be prepared to switch it from SPI to I2C. BMP280 is also fine.
 - [SSD1306 128x32 OLED screen I2C](https://www.tinytronics.nl/shop/nl/display/oled/0.91-inch-oled-display-128*32-pixels-wit-i2c): Make sure to get the I2C version, brand name doesn't matter too much, as long as it has a SSD1306 chipset.
