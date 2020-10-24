@@ -35,21 +35,23 @@ func createClientOptions(clientId string, uri *url.URL) *mqtt.ClientOptions {
 }
 
 func shiftedSin(s, min, max float64) float64 {
-	return min + (math.Sin(s) * (max - min))
+	height := max - min
+	return min + (height / 2) + (math.Sin(s) * (height / 2))
 }
 
-const simulateSteps = 512
+const simulateSteps = 60
 
 func generateValues(min float64, max float64, target chan float64) {
 	// two nested sinuses, between min and max
 	sBig := rand.Float64() * math.Pi
 	for true {
-		if sBig > math.Pi {
+		if sBig >= math.Pi {
 			sBig = 0
 		}
 		offset := shiftedSin(sBig, min, max)
-		for sSmall := 0.0; sSmall <= math.Pi; sSmall += math.Pi / simulateSteps {
-			target <- shiftedSin(sSmall, offset, max)
+		currentMax := offset + (rand.Float64() * 0.3 * (max - offset))
+		for sSmall := 0.0; sSmall < math.Pi; sSmall += rand.Float64() * math.Pi {
+			target <- shiftedSin(sSmall, offset, currentMax)
 		}
 		sBig += math.Pi / simulateSteps
 	}
@@ -61,13 +63,13 @@ func fakeClient(client mqtt.Client, clientID byte) {
 	humidity := make(chan float64)
 	pressure := make(chan float64)
 
-	go generateValues(400, 2000, co2)
+	go generateValues(400, 1500, co2)
 	go generateValues(17, 35, temps)
 	go generateValues(40, 70, humidity)
 	go generateValues(100000, 103000, pressure)
 
 	timer := time.NewTicker(10 * time.Second)
-	clientMac := fmt.Sprintf("FE:ED:C0:DE:00:00:00::%x", clientID)
+	clientMac := fmt.Sprintf("FE:ED:C0:DE:00:00:00:%02X", clientID)
 
 	publishFloat := func(kind string, value float64) {
 		topic := fmt.Sprintf("kiwi/%s/sensor/%s", clientMac, kind)
