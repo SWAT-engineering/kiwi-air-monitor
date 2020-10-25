@@ -2,10 +2,7 @@
 #include <ESP8266WiFi.h>
 #include "user-config.h"
 
-static const unsigned long tickRate = 10*1000;
-
-
-Mqtt::Mqtt(Sensors *sensors): sensors{sensors}, lastTick{0} {
+Mqtt::Mqtt(Sensors *sensors, KiwiTimer &timer): sensors{sensors} {
     #ifdef KIWI_MQTT 
     #ifdef KIWI_MQTT_SECURE
     client = new WiFiClientSecure();
@@ -14,67 +11,60 @@ Mqtt::Mqtt(Sensors *sensors): sensors{sensors}, lastTick{0} {
     #else
     client = new WiFiClient();
     #endif
-    mqtt = new Adafruit_MQTT_Client(client, KIWI_MQTT_SERVER, KIWI_MQTT_PORT, KIWI_MQTT_USERNAME, KIWI_WIFI_PASSWORD);
+    mqtt = new Adafruit_MQTT_Client(client, KIWI_MQTT_SERVER, KIWI_MQTT_PORT, KIWI_MQTT_USERNAME, KIWI_MQTT_PASSWORD);
 
     WiFi.persistent(false);
     WiFi.mode(WIFI_STA);
     WiFi.begin(KIWI_WIFI_SSID, KIWI_WIFI_PASSWORD);
 
-    int offset = sprintf(topicBuffer, "kiwi/%s/sensor/", WiFi.macAddress().c_str());
+    int offset = sprintf(topicBuffer, "kiwi/%s/", WiFi.macAddress().c_str());
     measurementName = &(topicBuffer[offset]);
+
+    timer.every(10*1000, [](void * self) -> bool {
+          return static_cast<Mqtt *>(self)->publishAll();
+      }, static_cast<void *>(this));
     #endif
 }
 
 static bool connect(Adafruit_MQTT_Client *mqtt) {
-  if (mqtt->connected()) {
-    return true;
-  }
-
-  if (mqtt->connect() != 0) {
-    mqtt->disconnect();
-    return false;
-  }
-  return true;
-}
-
-bool Mqtt::publish(const char *measurement, double value, unsigned long tick) {
-    if (isnan(value)) {
-        return false;
-    }
-    dtostrf(value, 0, 2, payloadBuffer);
-    return publish(measurement, payloadBuffer, tick);
-}
-
-bool Mqtt::publish(const char *measurement, const char* value, unsigned long tick) {
-    strcpy(measurementName, measurement);
-    if (mqtt->publish(topicBuffer, value, 0)) {
-        lastPublish = tick;
+    if (mqtt->connected()) {
         return true;
     }
-    return false;
+
+    int res = mqtt->connect();
+    if (res != 0) {
+        Serial.print("Error connecting to mqtt: ");
+        Serial.println(mqtt->connectErrorString(res));
+        mqtt->disconnect();
+        return false;
+    }
+    return true;
 }
 
-unsigned long Mqtt::process(unsigned long tick) {
-    #ifdef KIWI_MQTT
-    if (tick - lastTick >= tickRate) {
-        if (WiFi.status() == WL_CONNECTED && connect(mqtt)) {
-            publish("Temperature", sensors->getTemperature(), tick);
-            publish("Humidity", sensors->getHumidity(), tick);
-            publish("Pressure", sensors->getPressure(), tick);
-            publish("CO2", sensors->getCO2(), tick);
-            if (sensors->hasPresence()) {
-                publish("Presence", sensors->getPresence() ? "true" : "false", tick);
-            }
-            if (tick - lastPublish > 50*1000) {
-                mqtt->ping();
-                lastPublish = tick;
-            }
-        }
-        lastTick += tickRate;
-        return lastTick - tick;
+void Mqtt::publish(const char *measurement, double value) {
+    if (isnan(value)) {
+        return;
     }
-    return tickRate - (tick - lastTick);
-    #else
-    return 10000;
-    #endif
+    dtostrf(value, 0, 2, payloadBuffer);
+    publish(measurement, payloadBuffer);
+}
+
+void Mqtt::publish(const char *measurement, const char* value) {
+    strcpy(measurementName, measurement);
+    mqtt->publish(topicBuffer, value, 0);
+}
+
+
+bool Mqtt::publishAll() {
+    if (WiFi.status() == WL_CONNECTED && connect(mqtt)) {
+        publish("sensor/Temperature", sensors->getTemperature());
+        publish("sensor/Humidity", sensors->getHumidity());
+        publish("sensor/Pressure", sensors->getPressure());
+        publish("sensor/CO2", sensors->getCO2());
+        if (sensors->hasPresence()) {
+            publish("sensor/Presence", sensors->getPresence() ? "true" : "false");
+        }
+        publish("state/Active", true);
+    }
+    return true;
 }

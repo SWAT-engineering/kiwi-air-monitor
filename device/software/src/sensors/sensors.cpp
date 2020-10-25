@@ -4,42 +4,35 @@
 #define TICK_RATE (10*1000)
 
 Sensors::Sensors(KiwiTimer &timer) {
-    lastTick = 0;
-    co2 = new CO2Sensor();
 #ifdef KIWI_RCWL_SENSOR
     rcwl = new Rcwl0516Sensor(timer);
 #endif
-#ifdef KIWI_BME280_SENSOR
-    bme = new BME280Sensor();
-#endif
+    timer.every(10*1000, [](void * self) -> bool {
+          return static_cast<Sensors *>(self)->update();
+      }, static_cast<void *>(this));
 }
 
-unsigned long Sensors::update(unsigned long tick) {
-    unsigned long sinceLastTime = tick - lastTick;
-    if (sinceLastTime >= TICK_RATE) {
-        uint16_t co2value = co2->measure();
-        if (co2value > 0) {
-            co2Smoothed.put(co2value);
-        }
-        #ifdef KIWI_BME280_SENSOR
-        float temp;
-        float humidity;
-        float pressure;
-        bme->measure(temp, humidity, pressure);
-        if (!isnan(temp)) {
-            tempSmoothed.put(temp);
-        }
-        if (!isnan(humidity)) {
-            humiditySmoothed.put(humidity);
-        }
-        if (!isnan(pressure)) {
-            pressureSmoothed.put(pressure);
-        }
-        #endif
-
-        lastTick += TICK_RATE;
+bool Sensors::update() {
+    uint16_t co2value = co2.measure();
+    if (co2value > 0) {
+        co2Smoothed.put(co2value);
     }
-    return TICK_RATE - sinceLastTime;
+    #ifdef KIWI_BME280_SENSOR
+    float temp;
+    float humidity;
+    float pressure;
+    bme.measure(temp, humidity, pressure);
+    if (!isnan(temp)) {
+        tempSmoothed.put(temp);
+    }
+    if (!isnan(humidity)) {
+        humiditySmoothed.put(humidity);
+    }
+    if (!isnan(pressure)) {
+        pressureSmoothed.put(pressure);
+    }
+    #endif
+    return true;
 }
 
 

@@ -3,20 +3,19 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 #include "sensors/sensors.hpp"
+#include "shared-timer.hpp"
 
 class Mqtt {
 public:
-    Mqtt(Sensors *sensors);
-    unsigned long process(unsigned long tick);
+    Mqtt(Sensors *sensors, KiwiTimer &timer);
 private:
     Sensors *sensors;
     Client *client;
     Adafruit_MQTT_Client *mqtt;
-    unsigned long lastTick;
-    unsigned long lastPublish;
 
-    bool publish(const char *measurement, double value, unsigned long tick);
-    bool publish(const char *measurement, const char *value, unsigned long tick);
+    bool publishAll();
+    void publish(const char *measurement, double value);
+    void publish(const char *measurement, const char *value);
     char topicBuffer[64];
     char *measurementName;
     char payloadBuffer[42];

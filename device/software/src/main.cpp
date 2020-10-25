@@ -9,6 +9,7 @@
 
 
 KiwiTimer timer;
+KiwiTimer highResTimer;
 Sensors *sensors;
 Display *display;
 BreathingLed *led;
@@ -28,19 +29,19 @@ void setup() {
   Wire.begin(D2, D1);
   sensors = new Sensors(timer);
   display = new Display(sensors);
-  led = new BreathingLed();
-  mqtt = new Mqtt(sensors);
+  led = new BreathingLed(&highResTimer);
+  mqtt = new Mqtt(sensors, timer);
 }
 
 
 unsigned long min(unsigned long a, unsigned long b) {
-  return a > b ? a : b;
+  return a < b ? a : b;
 }
 
 static void checkThresholds() {
   double co2 = sensors->getCO2();
   if (!isnan(co2)) {
-    if (co2 > 700) {
+    if (co2 > 600) {
       led->start(SevereWarning);
     }
     else if (co2 > 500) {
@@ -58,9 +59,9 @@ static void checkThresholds() {
 void loop() { 
   unsigned long tick = millis();
   unsigned long sleepTime = 10*1000;
-  sleepTime = min(sleepTime, sensors->update(tick));
+  checkThresholds();
+  sleepTime = min(sleepTime, timer.tick());
+  sleepTime = min(sleepTime, highResTimer.tick());
   sleepTime = min(sleepTime, display->render(tick));
-  sleepTime = min(sleepTime, led->render(tick));
-  sleepTime = min(sleepTime, mqtt->process(tick));
-  delay(10);
+  delay(min(1000, sleepTime));
 }

@@ -2,7 +2,6 @@
 #include <Wire.h>
 
 BME280Sensor::BME280Sensor(){
-
     valid = bme.begin(0x76, &Wire);
 
     if (!valid) {

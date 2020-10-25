@@ -1,6 +1,7 @@
 #pragma once
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
+#include "shared-timer.hpp"
 
 enum WarningLevel {
     WarningRising = 0,
@@ -12,17 +13,17 @@ enum WarningLevel {
 
 class BreathingLed {
 public:
-    BreathingLed();
+    BreathingLed(KiwiTimer *timer);
 
     void start(WarningLevel level);
     void stop();
 
-    unsigned long render(unsigned long tick);
 private:
-    unsigned long lastTick;
-    unsigned long wait;
+    KiwiTimer *timer;
+    bool render();
+    unsigned long blinkStart;
     uint32_t color;
-    float position;
+    Timer<>::Task activeLed;
     WarningLevel currentLevel;
     Adafruit_NeoPixel *pixel;
 };

@@ -1,6 +1,5 @@
 #include "sensors/co2sensor.hpp"
 
-
 void CO2Sensor::init() {
     if (connection != nullptr) {
         delete connection;

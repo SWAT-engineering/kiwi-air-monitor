@@ -2,11 +2,10 @@
 
 
 static const unsigned int AmountOfSteps = 64;
-static const unsigned int totalTime = 2000;
+static const unsigned long totalTime = 2000;
 static const unsigned int timeBetweenBreaths = 500;
 
-BreathingLed::BreathingLed(): 
-        lastTick{0}, position{-1}, currentLevel{Disabled}  {
+BreathingLed::BreathingLed(KiwiTimer *timer): timer{timer},  currentLevel{Disabled}, activeLed{(Timer<>::Task)NULL}  {
     pixel = new Adafruit_NeoPixel(1, D3, NEO_GRB + NEO_KHZ800);
     pixel->begin();
     pixel->clear();
@@ -15,24 +14,13 @@ BreathingLed::BreathingLed():
 
 static uint32_t calculateColor(float position, uint32_t color);
 
-unsigned long BreathingLed::render(unsigned long tick) {
-    if (position < 0) {
-        return 10*1000;
-    }
-    if (tick - lastTick > wait) {
-        pixel->clear();
-        if (++position < AmountOfSteps) {
-            pixel->setPixelColor(0, calculateColor(position, color));
-            wait = totalTime / AmountOfSteps;
-        }
-        else {
-            position = 0;
-            wait = timeBetweenBreaths;
-        }
-        pixel->show();
-        lastTick = tick;
-    }
-    return wait - (tick - lastTick);
+bool BreathingLed::render() {
+    unsigned long tick = millis();
+    unsigned long position = (tick - blinkStart) % totalTime;
+    pixel->clear();
+    pixel->setPixelColor(0, calculateColor(((float)position) / totalTime, color));
+    pixel->show();
+    return true;
 }
 
 void BreathingLed::start(WarningLevel level) {
@@ -44,9 +32,7 @@ void BreathingLed::start(WarningLevel level) {
         return;
     }
     currentLevel = level;
-    position = 0;
-    wait = 0;
-    lastTick = millis();
+    blinkStart = millis();
     switch (level) {
         case WarningRising:
             color = 0xf46d43;
@@ -61,11 +47,18 @@ void BreathingLed::start(WarningLevel level) {
             color = 0x74add1;
             break;
     }
-    render(lastTick + 1);
+    if (activeLed == (Timer<>::Task)NULL){
+        activeLed = timer->every(1000/25, [](void *self) -> bool {
+            return static_cast<BreathingLed *>(self)->render();
+        },static_cast<void *>(this));
+    }
 }
 
 void BreathingLed::stop() {
-    position = -1;
+    if (activeLed != (Timer<>::Task)NULL){
+        timer->cancel(activeLed);
+        activeLed = (Timer<>::Task)NULL;
+    }
     currentLevel = Disabled;
     pixel->clear();
     pixel->show();
@@ -82,10 +75,10 @@ static uint32_t applyBrightness(uint32_t color, uint8_t brightness) {
     ;
 }
 
-static const uint8_t minBrightness = 64;
+static const uint8_t minBrightness = 48;
 static const uint8_t maxBrightness = 128;
 
 static uint32_t calculateColor(float position, uint32_t color) {
-    double breath = minBrightness + (sin(PI * (position / AmountOfSteps)) * (maxBrightness - minBrightness));
+    double breath = minBrightness + (sin(PI * position) * (maxBrightness - minBrightness));
     return applyBrightness(color, breath);
 }
