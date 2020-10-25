@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
+#include "shared-timer.hpp"
 #include "user-config.h"
 #include "sensors/sensors.hpp"
 #include "output/display.hpp"
@@ -7,6 +8,7 @@
 #include "output/mqtt.hpp"
 
 
+KiwiTimer timer;
 Sensors *sensors;
 Display *display;
 BreathingLed *led;
@@ -24,7 +26,7 @@ void setup() {
   Serial.begin(74880);
   // setup I2C on the correct pins
   Wire.begin(D2, D1);
-  sensors = new Sensors();
+  sensors = new Sensors(timer);
   display = new Display(sensors);
   led = new BreathingLed();
   mqtt = new Mqtt(sensors);

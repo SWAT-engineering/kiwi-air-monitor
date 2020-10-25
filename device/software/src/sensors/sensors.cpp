@@ -3,14 +3,21 @@
 
 #define TICK_RATE (10*1000)
 
-Sensors::Sensors() {
+Sensors::Sensors(KiwiTimer &timer) {
     lastTick = 0;
+    co2 = new CO2Sensor();
+#ifdef KIWI_RCWL_SENSOR
+    rcwl = new Rcwl0516Sensor(timer);
+#endif
+#ifdef KIWI_BME280_SENSOR
+    bme = new BME280Sensor();
+#endif
 }
 
 unsigned long Sensors::update(unsigned long tick) {
     unsigned long sinceLastTime = tick - lastTick;
     if (sinceLastTime >= TICK_RATE) {
-        uint16_t co2value = co2.measure();
+        uint16_t co2value = co2->measure();
         if (co2value > 0) {
             co2Smoothed.put(co2value);
         }
@@ -18,7 +25,7 @@ unsigned long Sensors::update(unsigned long tick) {
         float temp;
         float humidity;
         float pressure;
-        bme.measure(temp, humidity, pressure);
+        bme->measure(temp, humidity, pressure);
         if (!isnan(temp)) {
             tempSmoothed.put(temp);
         }
@@ -69,21 +76,40 @@ bool Sensors::hasTemperature() {
     return false;
 }
 double Sensors::getTemperature() {
-    return sqrt(-1);
+    return NAN;
 }
 bool Sensors::hasHumidity() {
     return false;
 }
 double Sensors::getHumidity() {
-    return sqrt(-1);
+    return NAN;
 }
 bool Sensors::hasPressure() {
     return false;
 }
 double Sensors::getPressure() {
-    return sqrt(-1);
+    return NAN;
 }
 #endif
+
+#ifdef KIWI_RCWL_SENSOR
+bool Sensors::getPresence() {
+    return rcwl->presenceDetected();
+}
+
+bool Sensors::hasPresence() {
+    return true;
+}
+#else
+bool Sensors::getPresence() {
+    return false;
+}
+
+bool Sensors::hasPresence() {
+    return false;
+}
+#endif
+
 
 #ifdef KIWI_PARTICLE_SENSOR 
 bool Sensors::hasParticle() {
@@ -97,7 +123,7 @@ bool Sensors::hasParticle() {
     return false;
 }
 double Sensors::getParticle() {
-    return sqrt(-1);
+    return NAN;
 }
 #endif
 

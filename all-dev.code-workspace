@@ -27,7 +27,11 @@
 			"vector": "cpp",
 			"string_view": "cpp",
 			"initializer_list": "cpp",
-			"memory": "cpp"
+			"memory": "cpp",
+			"*.tcc": "cpp",
+			"random": "cpp",
+			"limits": "cpp",
+			"stdexcept": "cpp"
 		}
 	}
 }

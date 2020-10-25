@@ -41,9 +41,13 @@ bool Mqtt::publish(const char *measurement, double value, unsigned long tick) {
     if (isnan(value)) {
         return false;
     }
-    strcpy(measurementName, measurement);
     dtostrf(value, 0, 2, payloadBuffer);
-    if (mqtt->publish(topicBuffer, payloadBuffer, 0)) {
+    return publish(measurement, payloadBuffer, tick);
+}
+
+bool Mqtt::publish(const char *measurement, const char* value, unsigned long tick) {
+    strcpy(measurementName, measurement);
+    if (mqtt->publish(topicBuffer, value, 0)) {
         lastPublish = tick;
         return true;
     }
@@ -58,6 +62,9 @@ unsigned long Mqtt::process(unsigned long tick) {
             publish("Humidity", sensors->getHumidity(), tick);
             publish("Pressure", sensors->getPressure(), tick);
             publish("CO2", sensors->getCO2(), tick);
+            if (sensors->hasPresence()) {
+                publish("Presence", sensors->getPresence() ? "true" : "false", tick);
+            }
             if (tick - lastPublish > 50*1000) {
                 mqtt->ping();
                 lastPublish = tick;

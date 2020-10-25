@@ -16,6 +16,7 @@ private:
     unsigned long lastPublish;
 
     bool publish(const char *measurement, double value, unsigned long tick);
+    bool publish(const char *measurement, const char *value, unsigned long tick);
     char topicBuffer[64];
     char *measurementName;
     char payloadBuffer[42];
