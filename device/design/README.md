@@ -7,6 +7,7 @@ We link to a Dutch store for easy buying, but no need to buy it there.
 - [Wemos/LOLIN D1 Mini V3(ESP8266)](https://www.tinytronics.nl/shop/nl/communicatie/wi-fi/wemos-d1-mini-v2-esp8266-12f-ch340) 
 - [Winsen MH-Z19B CO2 Sensor](https://www.tinytronics.nl/shop/nl/sensoren/temperatuur-lucht-vochtigheid/winsen-mh-z19b-co2-sensor-met-kabel): be sure to get the __B version__.
 - [BME280 I2C Temperature/Humidity Sensor](https://www.tinytronics.nl/shop/nl/sensoren/temperatuur-lucht-vochtigheid/bme280-digitale-barometer-druk-en-vochtigheid-sensor-module): make sure you get a version that has I2C enabled by default, or be prepared to switch it from SPI to I2C. BMP280 is also fine.
+- [RCWL-0516 movement sensor](https://www.tinytronics.nl/shop/en/communication/rf/microwave-movement-sensor-rcwl-0516) a small sensor to detect movement up to 7m away from the sensor, used for screen off sensor, and useful for building monitoring.
 - [SSD1306 128x32 OLED screen I2C](https://www.tinytronics.nl/shop/nl/display/oled/0.91-inch-oled-display-128*32-pixels-wit-i2c): Make sure to get the I2C version, brand name doesn't matter too much, as long as it has a SSD1306 chipset.
 - [WS2812B RGB Led](https://www.tinytronics.nl/shop/nl/verlichting/led-digitaal/ws2812b-digitale-5050-rgb-led-printplaat-los-wit): You need a single one, but for fun you can also buy a whole strip and have some other projects with them.
 
