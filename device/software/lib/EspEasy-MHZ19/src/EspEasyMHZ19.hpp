@@ -23,6 +23,7 @@ class EspEasyMHZ19 {
         unsigned int prevValue;
         bool initializing;
         unsigned long lastReset;
+        unsigned long lastABCSet;
     public:
         EspEasyMHZ19(uint8_t rx, uint8_t tx, bool abcDisabled, int filter): 
                 rx{rx}, tx{tx}, 

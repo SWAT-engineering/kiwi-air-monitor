@@ -1,18 +1,13 @@
 #pragma once
 #include <Arduino.h>
-#include "MHZ19.h"
+//#include "MHZ19.h"
+#include "EspEasyMHZ19.hpp"
 #include <SoftwareSerial.h>
 
 class CO2Sensor {
 private:
-    MHZ19 hardware;
-    SoftwareSerial *connection;
-    void init();
-    unsigned long lastReset;
-    unsigned int errorCount;
-    bool initialized;
-    bool isReady();
+    EspEasyMHZ19 *hardware;
 public:
-    CO2Sensor() { init(); }
+    CO2Sensor();
     uint16_t measure();
 };

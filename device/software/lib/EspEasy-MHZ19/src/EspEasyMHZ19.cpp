@@ -95,16 +95,21 @@ uint16_t EspEasyMHZ19::readCO2() {
     else {
         // Check for stable reads and allow unstable reads the first 3 minutes after reset.
         if (hardware->nrUnknownResponses > 10 && hardware->initTimePassed) {
-            //reset();
+            init();
         }
         return 0;
     }
     if (expectReset) {
-        //reset();
+        init();
         return 0;
     }
     if (!isReady()) {
         return 0;
+    }
+    if (millis() - lastABCSet > (12 * 60 * 60 * 1000ul)) {
+        // just be sure to send the ABC command every once in a while
+        hardware->ABC_MustApply = true;
+        lastABCSet = millis();
     }
     return ppm;
 }
