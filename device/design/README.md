@@ -43,6 +43,9 @@ In Summary, labels on the Wemos D1 Mini
 |WS2812B | VDD | 5V |
 | | VSS | G |
 | | DIN | D4|
+| RCWL-0516 | VCC/VIN | 5V |
+| | VOUT | D0 |
+| | GND | G |
 |SDS011 (opt) | VCC | 5V |
 | | GND | G |
 | | TX | D3 |
