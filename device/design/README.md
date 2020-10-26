@@ -18,7 +18,7 @@ Optional:
 
 Stuff we assume you already have:
 
-- USB charger (1A should be enough)
+- USB charger (500ma should be enough)
 - Micro-USB cable
 - Wires to connect sensors to the ESP8266
 - Breadboard & jumper wires for experimentation
