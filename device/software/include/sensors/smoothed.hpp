@@ -22,9 +22,14 @@ public:
     bool enoughData() {
         return filled;
     }
+
+    void markError() {
+        filled = false;
+    }
+
     double get() {
         if (!filled) {
-            return sqrt(-1.0);
+            return NAN;
         }
         double result = 0;
         for(const T &r : raws) {

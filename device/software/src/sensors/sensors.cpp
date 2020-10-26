@@ -12,25 +12,31 @@ Sensors::Sensors(KiwiTimer &timer) {
       }, static_cast<void *>(this));
 }
 
+
+#define PUT_OR_MARK(sm, v) \
+    if (!isnan(v)) { \
+        sm.put(v); \
+    } else { \
+        sm.markError(); \
+    }
+
+
 bool Sensors::update() {
     uint16_t co2value = co2.measure();
     if (co2value > 0) {
         co2Smoothed.put(co2value);
+    }
+    else {
+        co2Smoothed.markError();
     }
     #ifdef KIWI_BME280_SENSOR
     float temp;
     float humidity;
     float pressure;
     bme.measure(temp, humidity, pressure);
-    if (!isnan(temp)) {
-        tempSmoothed.put(temp);
-    }
-    if (!isnan(humidity)) {
-        humiditySmoothed.put(humidity);
-    }
-    if (!isnan(pressure)) {
-        pressureSmoothed.put(pressure);
-    }
+    PUT_OR_MARK(tempSmoothed, temp);
+    PUT_OR_MARK(humiditySmoothed, humidity);
+    PUT_OR_MARK(pressureSmoothed, pressure);
     #endif
     return true;
 }
