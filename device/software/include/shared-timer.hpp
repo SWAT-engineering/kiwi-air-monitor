@@ -1,3 +1,3 @@
 #pragma once
 #include <arduino-timer.h>
-using KiwiTimer = Timer<16, millis, void *>;
+using KiwiTimer = Timer<32, millis, void *>;

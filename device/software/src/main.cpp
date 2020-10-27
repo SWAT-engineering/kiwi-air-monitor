@@ -6,14 +6,18 @@
 #include "output/display.hpp"
 #include "output/led.hpp"
 #include "output/mqtt.hpp"
+#include "service/wifi-connection.hpp"
+#include "service/mqtt-connection.hpp"
+#include <PolledTimeout.h>
 
 
 KiwiTimer timer;
-KiwiTimer highResTimer;
+WifiConnection *wifi;
 Sensors *sensors;
 Display *display;
 BreathingLed *led;
 Mqtt *mqtt;
+MqttConnection *mqttCon;
 
 /*
 CO2: TX: D8, RX: D5
@@ -27,10 +31,12 @@ void setup() {
   Serial.begin(74880);
   // setup I2C on the correct pins
   Wire.begin(D2, D1);
+  wifi = new WifiConnection(timer);
+  mqttCon = new MqttConnection(wifi, timer);
   sensors = new Sensors(timer);
   display = new Display(sensors);
-  led = new BreathingLed(&highResTimer);
-  mqtt = new Mqtt(sensors, timer);
+  led = new BreathingLed(&timer);
+  mqtt = new Mqtt(sensors, mqttCon, timer);
 }
 
 
@@ -61,7 +67,6 @@ void loop() {
   unsigned long sleepTime = 10*1000;
   checkThresholds();
   sleepTime = min(sleepTime, timer.tick());
-  sleepTime = min(sleepTime, highResTimer.tick());
   sleepTime = min(sleepTime, display->render(tick));
-  delay(min(1000, sleepTime));
+  delay(sleepTime);
 }
