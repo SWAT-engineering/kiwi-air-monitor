@@ -18,12 +18,22 @@ MqttConnection::MqttConnection(WifiConnection *wifi, KiwiTimer &timer): wifi{wif
     int offset = sprintf(topicBuffer, "kiwi/%s/", WiFi.macAddress().c_str());
     measurementName = &(topicBuffer[offset]);
 
-/*
-    timer.every(10*1000, [](void * self) -> bool {
-          return static_cast<Mqtt *>(self)->publishAll();
+    timer.every(1000, [](void * self) -> bool {
+          return static_cast<MqttConnection *>(self)->process();
       }, static_cast<void *>(this));
-      */
 #endif
+}
+
+void MqttConnection::setWill(const char *subTopic, const char *value) {
+    char *fullMessage = new char[64];
+    sprintf(topicBuffer, "kiwi/%s/%s", WiFi.macAddress().c_str(),subTopic);
+    mqtt->will(fullMessage, value);
+}
+
+bool MqttConnection::subscribe(const char *topic, SubscribeCallbackBufferType callback) {
+    auto sub = new Adafruit_MQTT_Subscribe(mqtt, topic);
+    sub->setCallback(callback);
+    return mqtt->subscribe(sub);
 }
 
 static bool connect(Adafruit_MQTT_Client *mqtt) {
@@ -48,9 +58,19 @@ bool MqttConnection::publish(const char *measurement, double value) {
 }
 
 bool MqttConnection::publish(const char *measurement, const char* value) {
-    if (wifi->isConnected() && connect(mqtt)) {
+    if (wifi->isConnected() && connect(mqtt) && value != nullptr) {
         strcpy(measurementName, measurement);
         return mqtt->publish(topicBuffer, value, 0);
     }
     return false;
+}
+
+bool MqttConnection::process() {
+    while (true) {
+        Adafruit_MQTT_Subscribe *sub = mqtt->readSubscription(100);
+        if (sub == nullptr) {
+            return true;
+        }
+        sub->callback_buffer((char *)sub->lastread, sub->datalen);
+    }
 }
