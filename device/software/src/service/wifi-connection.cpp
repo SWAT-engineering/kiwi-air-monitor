@@ -1,4 +1,5 @@
 #include "service/wifi-connection.hpp"
+#include "user-config.h"
 
 
 static void addAccessPoints(ESP8266WiFiMulti &wifi);
@@ -14,8 +15,7 @@ WifiConnection::WifiConnection(KiwiTimer &timer): connected{false} {
 }
 
 static void addAccessPoints(ESP8266WiFiMulti &wifi) {
-    
-
+    wifi.addAP(KIWI_WIFI_SSID, KIWI_WIFI_PASSWORD);
 }
 #ifndef KIWI_WIFI_CONNECT_TIME
 #define KIWI_WIFI_CONNECT_TIME 5000
