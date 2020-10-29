@@ -31,7 +31,8 @@
 			"*.tcc": "cpp",
 			"random": "cpp",
 			"limits": "cpp",
-			"stdexcept": "cpp"
+			"stdexcept": "cpp",
+			"optional": "cpp"
 		}
 	}
 }
