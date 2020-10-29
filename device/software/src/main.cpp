@@ -7,6 +7,7 @@
 #include "output/led.hpp"
 #include "output/mqtt.hpp"
 #include "service/wifi-connection.hpp"
+#include "service/ota-updates.hpp"
 #include "service/mqtt-connection.hpp"
 #include <PolledTimeout.h>
 
@@ -18,6 +19,7 @@ Display *display;
 BreathingLed *led;
 Mqtt *mqtt;
 MqttConnection *mqttCon;
+OTAUpdates *ota;
 
 /*
 CO2: TX: D8, RX: D5
@@ -33,6 +35,7 @@ void setup() {
   Wire.begin(D2, D1);
   wifi = new WifiConnection(timer);
   mqttCon = new MqttConnection(wifi, timer);
+  ota = new OTAUpdates(wifi, mqttCon, timer);
   sensors = new Sensors(timer);
   display = new Display(sensors);
   led = new BreathingLed(&timer);
@@ -47,7 +50,7 @@ unsigned long min(unsigned long a, unsigned long b) {
 static void checkThresholds() {
   double co2 = sensors->getCO2();
   if (!isnan(co2)) {
-    if (co2 > 600) {
+    if (co2 > 650) {
       led->start(SevereWarning);
     }
     else if (co2 > 500) {

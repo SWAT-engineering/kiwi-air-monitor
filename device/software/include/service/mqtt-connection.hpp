@@ -13,9 +13,9 @@ public:
     // should be called before the timer is first ticked (so during setup)
     bool subscribe(const char *topic, SubscribeCallbackBufferType callback);
     // nan is dropped
-    bool publish(const char *subTopic, double value);
+    bool publish(const char *subTopic, double value, uint8_t qos = 0);
     // null is dropped
-    bool publish(const char *subTopic, const char *value);
+    bool publish(const char *subTopic, const char *value, uint8_t qos = 0);
 private:
     Client *client;
     Adafruit_MQTT_Client *mqtt;

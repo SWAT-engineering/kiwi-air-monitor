@@ -49,18 +49,18 @@ static bool connect(Adafruit_MQTT_Client *mqtt) {
     return true;
 }
 
-bool MqttConnection::publish(const char *measurement, double value) {
+bool MqttConnection::publish(const char *measurement, double value, uint8_t qos) {
     if (isnan(value)) {
         return false;
     }
     dtostrf(value, 0, 2, payloadBuffer);
-    return publish(measurement, payloadBuffer);
+    return publish(measurement, payloadBuffer, qos);
 }
 
-bool MqttConnection::publish(const char *measurement, const char* value) {
+bool MqttConnection::publish(const char *measurement, const char* value, uint8_t qos) {
     if (wifi->isConnected() && connect(mqtt) && value != nullptr) {
         strcpy(measurementName, measurement);
-        return mqtt->publish(topicBuffer, value, 0);
+        return mqtt->publish(topicBuffer, value, qos);
     }
     return false;
 }
