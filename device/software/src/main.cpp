@@ -9,6 +9,7 @@
 #include "service/wifi-connection.hpp"
 #include "service/ota-updates.hpp"
 #include "service/mqtt-connection.hpp"
+#include "service/status.hpp"
 #include <PolledTimeout.h>
 
 
@@ -20,6 +21,7 @@ BreathingLed *led;
 Mqtt *mqtt;
 MqttConnection *mqttCon;
 OTAUpdates *ota;
+Status *status;
 
 /*
 CO2: TX: D8, RX: D5
@@ -40,6 +42,7 @@ void setup() {
   display = new Display(sensors);
   led = new BreathingLed(&timer);
   mqtt = new Mqtt(sensors, mqttCon, timer);
+  status = new Status(mqttCon, timer);
 }
 
 

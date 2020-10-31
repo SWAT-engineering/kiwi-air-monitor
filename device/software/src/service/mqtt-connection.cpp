@@ -21,6 +21,10 @@ MqttConnection::MqttConnection(WifiConnection *wifi, KiwiTimer &timer): wifi{wif
     timer.every(1000, [](void * self) -> bool {
           return static_cast<MqttConnection *>(self)->process();
       }, static_cast<void *>(this));
+
+    timer.every(1000, [](void * self) -> bool {
+          return static_cast<MqttConnection *>(self)->process();
+      }, static_cast<void *>(this));
 #endif
 }
 
@@ -66,11 +70,14 @@ bool MqttConnection::publish(const char *measurement, const char* value, uint8_t
 }
 
 bool MqttConnection::process() {
-    while (true) {
-        Adafruit_MQTT_Subscribe *sub = mqtt->readSubscription(100);
-        if (sub == nullptr) {
-            return true;
+    if (wifi->isConnected() && connect(mqtt)) {
+        while (true) {
+            Adafruit_MQTT_Subscribe *sub = mqtt->readSubscription(100);
+            if (sub == nullptr) {
+                return true;
+            }
+            sub->callback_buffer((char *)sub->lastread, sub->datalen);
         }
-        sub->callback_buffer((char *)sub->lastread, sub->datalen);
     }
+    return true;
 }

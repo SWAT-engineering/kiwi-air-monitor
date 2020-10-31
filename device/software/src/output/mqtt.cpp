@@ -19,6 +19,5 @@ bool Mqtt::publishAll() {
     if (sensors->hasPresence()) {
         mqtt->publish("sensor/Presence", sensors->getPresence() ? "true" : "false");
     }
-    mqtt->publish("state/Active", true);
     return true;
 }

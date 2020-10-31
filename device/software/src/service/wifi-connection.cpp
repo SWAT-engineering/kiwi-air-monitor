@@ -22,6 +22,10 @@ static void addAccessPoints(ESP8266WiFiMulti &wifi) {
 #endif
 
 bool WifiConnection::checkConnections() {
+    bool oldConnected = connected;
     connected = wifi.run(KIWI_WIFI_CONNECT_TIME) == WL_CONNECTED;
+    if (oldConnected != connected) {
+        Serial.printf("Wifi: %d\n", connected);
+    }
     return true;
 }
