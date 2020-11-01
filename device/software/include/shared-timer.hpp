@@ -8,5 +8,5 @@ using KiwiTimer = Timer<32, millis, void *>;
 #define EVERY(__timer, __ms, __type, __call) \
     __timer.every(__ms, [](void * self) -> bool { \
         return static_cast<__type *>(self)->__call(); \
-    }, static_cast<void *>(this)); 
+    }, static_cast<void *>(this)) 
 

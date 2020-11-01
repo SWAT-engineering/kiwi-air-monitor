@@ -12,13 +12,9 @@ BearSSL::HashSHA256 hash;
 BearSSL::SigningVerifier sign(&signPubKey);
 
 OTAUpdates::OTAUpdates(WifiConnection *wifi, MqttConnection *mqtt, KiwiTimer &timer):  mqtt{mqtt}, wifi{wifi} {
-    timer.every(60 * 1000, [](void * self) -> bool {
-        return static_cast<OTAUpdates *>(self)->checkOta();
-    }, static_cast<void*>(this));
 
-    timer.every(10 * 1000, [](void * self) -> bool {
-        return static_cast<OTAUpdates *>(self)->reportState();
-    }, static_cast<void*>(this));
+    EVERY(timer, 60*1000, OTAUpdates, checkOta);
+    EVERY(timer, 10*1000, OTAUpdates, reportState);
 
     memcpy(currentSum, ESP.getSketchMD5().c_str(), MD5_TEXT_SIZE + 1);
     memcpy(otaSum, currentSum, MD5_TEXT_SIZE + 1);

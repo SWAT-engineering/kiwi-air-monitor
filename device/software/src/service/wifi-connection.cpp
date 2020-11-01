@@ -8,10 +8,7 @@ WifiConnection::WifiConnection(KiwiTimer &timer): connected{false} {
     WiFi.persistent(false);
     WiFi.mode(WIFI_STA);
     addAccessPoints(wifi);
-    timer.every(10000, [](void *self) -> bool {
-        return static_cast<WifiConnection *>(self)->checkConnections();
-    }, static_cast<void*>(this));
-
+    EVERY(timer, 10*1000, WifiConnection, checkConnections);
 }
 
 static void addAccessPoints(ESP8266WiFiMulti &wifi) {

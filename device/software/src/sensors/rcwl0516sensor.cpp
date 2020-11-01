@@ -9,9 +9,7 @@ Rcwl0516Sensor::Rcwl0516Sensor(KiwiTimer &timer): seenOffset{0} {
       for (unsigned int i = 0; i < AMOUNT_OF_MEASUREMENTS; i++) {
           lastSeen[i] = -(2 * RECENT_MOVEMENT);
       }
-      timer.every(500, [](void * self) -> bool {
-          return static_cast<Rcwl0516Sensor *>(self)->sense();
-      }, static_cast<void *>(this));
+      EVERY(timer, 500, Rcwl0516Sensor, sense);
 }
 bool Rcwl0516Sensor::presenceDetected() {
     // if we've seen movement in the last X minutes, we assume there is activity

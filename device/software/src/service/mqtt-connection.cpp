@@ -18,13 +18,7 @@ MqttConnection::MqttConnection(WifiConnection *wifi, KiwiTimer &timer): wifi{wif
     int offset = sprintf(topicBuffer, "kiwi/%s/", WiFi.macAddress().c_str());
     measurementName = &(topicBuffer[offset]);
 
-    timer.every(1000, [](void * self) -> bool {
-          return static_cast<MqttConnection *>(self)->process();
-      }, static_cast<void *>(this));
-
-    timer.every(1000, [](void * self) -> bool {
-          return static_cast<MqttConnection *>(self)->process();
-      }, static_cast<void *>(this));
+    EVERY(timer, 1000, MqttConnection, process);
 #endif
 }
 

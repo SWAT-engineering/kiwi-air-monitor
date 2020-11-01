@@ -7,9 +7,7 @@ Sensors::Sensors(KiwiTimer &timer) {
 #ifdef KIWI_RCWL_SENSOR
     rcwl = new Rcwl0516Sensor(timer);
 #endif
-    timer.every(10*1000, [](void * self) -> bool {
-          return static_cast<Sensors *>(self)->update();
-      }, static_cast<void *>(this));
+    EVERY(timer, 10*1000, Sensors, update);
 }
 
 
