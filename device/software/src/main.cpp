@@ -39,7 +39,7 @@ void setup() {
   mqttCon = new MqttConnection(wifi, timer);
   ota = new OTAUpdates(wifi, mqttCon, timer);
   sensors = new Sensors(timer);
-  display = new Display(sensors);
+  display = new Display(sensors, timer);
   led = new BreathingLed(&timer);
   mqtt = new Mqtt(sensors, mqttCon, timer);
   status = new Status(mqttCon, timer);
@@ -69,10 +69,6 @@ static void checkThresholds() {
 }
 
 void loop() { 
-  unsigned long tick = millis();
-  unsigned long sleepTime = 10*1000;
   checkThresholds();
-  sleepTime = min(sleepTime, timer.tick());
-  sleepTime = min(sleepTime, display->render(tick));
-  delay(sleepTime);
+  delay(timer.tick());
 }
