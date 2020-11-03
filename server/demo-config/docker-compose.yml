@@ -31,6 +31,11 @@ services:
         soft: 65536
         hard: 65536
   
+  mqtt-2-influx:
+    build: ../mqtt-2-influx/
+    networks:
+      - kiwi-private
+
   grafana:
     image: grafana/grafana:7.2.2
     networks:
