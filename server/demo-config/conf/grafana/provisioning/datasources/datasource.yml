@@ -1,0 +1,9 @@
+apiVersion: 1
+datasources:
+  - name: InfluxDB - Kiwi
+    type: influxdb
+    access: proxy
+    database: kiwi
+    url: http://influxdb:8086
+    isDefault: true
+    editable: true

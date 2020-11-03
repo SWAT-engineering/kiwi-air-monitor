@@ -48,9 +48,7 @@ void BreathingLed::start(WarningLevel level) {
             break;
     }
     if (activeLed == (Timer<>::Task)NULL){
-        activeLed = timer->every(1000/25, [](void *self) -> bool {
-            return static_cast<BreathingLed *>(self)->render();
-        },static_cast<void *>(this));
+        activeLed = EVERY((*timer), 1000/25, BreathingLed, render);
     }
 }
 

@@ -4,9 +4,7 @@
 
 Mqtt::Mqtt(Sensors *sensors, MqttConnection *mqtt, KiwiTimer &timer): sensors{sensors}, mqtt{mqtt} {
 #ifdef KIWI_MQTT 
-    timer.every(10*1000, [](void * self) -> bool {
-          return static_cast<Mqtt *>(self)->publishAll();
-      }, static_cast<void *>(this));
+    EVERY(timer, 10*1000, Mqtt, publishAll);
 #endif
 }
 
@@ -19,6 +17,5 @@ bool Mqtt::publishAll() {
     if (sensors->hasPresence()) {
         mqtt->publish("sensor/Presence", sensors->getPresence() ? "true" : "false");
     }
-    mqtt->publish("state/Active", true);
     return true;
 }
