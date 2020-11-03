@@ -28,11 +28,11 @@ import (
 )
 
 const (
-	mqttURL   string = "localhost:8883"
+	mqttURL   string = "mqtt:1883"
 	mqttTopic string = "kiwi/+/sensor/#" //  '+' = mac, '#' = measurement \in {Temperatur, Pressure, Humidity, CO2}
 	mqttRegex string = "kiwi/([^/]+)/sensor/([^/]+)"
 
-	influxURL      string = "localhost:8086"
+	influxURL      string = "influxdb:8086"
 	influxDatabase string = "kiwi"
 )
 
