@@ -47,7 +47,7 @@ func parseMqttMessage(topic string, payload []byte) sensorData {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return sensorData{regex.FindStringSubmatch(topic)[1], regex.FindStringSubmatch(topic)[2], string(payload)}
+	return sensorData{regex.FindStringSubmatch(topic)[2], regex.FindStringSubmatch(topic)[1], string(payload)}
 }
 
 // ExampleClient example of client creation
