@@ -1,6 +1,6 @@
 # Server documentation & setup for Kiwi
 
-The Kiwi Air Monitor can optionally send measurments to an MQTT server. This allows for building management and remote updates of settings & firmware.
+The Kiwi Air Monitor can optionally send measurements to an MQTT server. This allows for building management and remote updates of settings & firmware.
 
 This directory contains:
 
