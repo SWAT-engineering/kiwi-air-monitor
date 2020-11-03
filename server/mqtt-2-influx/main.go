@@ -17,6 +17,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -25,14 +26,17 @@ import (
 	"time"
 
 	"github.com/goiiot/libmqtt"
+	"github.com/pelletier/go-toml"
 )
 
 const (
-	mqttURL   string = "mqtt:1883"
-	mqttTopic string = "kiwi/+/sensor/#" //  '+' = mac, '#' = measurement \in {Temperatur, Pressure, Humidity, CO2}
-	mqttRegex string = "kiwi/([^/]+)/sensor/([^/]+)"
+	mqttURL     string = "mqtt:1883"
+	mqttURLTest string = "localhost:8883"
+	mqttTopic   string = "kiwi/+/sensor/#" //  '+' = mac, '#' = measurement \in {Temperatur, Pressure, Humidity, CO2}
+	mqttRegex   string = "kiwi/([^/]+)/sensor/([^/]+)"
 
 	influxURL      string = "influxdb:8086"
+	influxURLTest  string = "localhost:8086"
 	influxDatabase string = "kiwi"
 )
 
@@ -42,12 +46,50 @@ type sensorData struct {
 	value     string
 }
 
+type Config struct {
+	Clients []Client `toml:"client"`
+}
+
+type Client struct {
+	Mac  string            `toml:"mac"`
+	Tags map[string]string `toml:"tags"`
+}
+
 func parseMqttMessage(topic string, payload []byte) sensorData {
 	regex, err := regexp.Compile("kiwi/([^/]+)/sensor/([^/]+)")
 	if err != nil {
 		log.Fatal(err)
 	}
 	return sensorData{regex.FindStringSubmatch(topic)[2], regex.FindStringSubmatch(topic)[1], string(payload)}
+}
+
+func createKeyValuePairs(m map[string]string) string {
+	b := new(bytes.Buffer)
+	for key, value := range m {
+		fmt.Fprintf(b, ",%s=\"%s\"", key, value)
+	}
+	return b.String()
+}
+
+func addTags(data sensorData) string {
+	tree, err := toml.LoadFile("./clients.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var influxLine string
+	config := Config{}
+	if err := tree.Unmarshal(&config); err != nil {
+		panic(err)
+	}
+	clients := config.Clients
+	for i := 0; i < len(clients); i++ {
+		client := clients[i]
+		if client.Mac == data.clientMac {
+			influxLine = fmt.Sprintf("%s,device=%s%s value=%s", data.kind, data.clientMac, createKeyValuePairs(client.Tags), data.value)
+		}
+	}
+	return influxLine
 }
 
 // ExampleClient example of client creation
@@ -149,11 +191,11 @@ func pubHandler(client libmqtt.Client, topic string, err error) {
 func main() {
 	client := createClient()
 
-	// handle every subscribed message (just for example)
+	// handle every subscribed message
 	client.HandleTopic(".*", func(client libmqtt.Client, topic string, qos libmqtt.QosLevel, msg []byte) {
 		data := parseMqttMessage(topic, msg)
-		log.Printf("%s,device=%s value=%s", data.kind, data.clientMac, data.value)
-		influxLine := fmt.Sprintf("%s,device=%s value=%s", data.kind, data.clientMac, data.value)
+		influxLine := addTags(data)
+		log.Printf(influxLine)
 		resp, err := http.Post("http://"+influxURL+"/write?db="+influxDatabase, "application/json", strings.NewReader(influxLine))
 		if err != nil {
 			log.Fatal(err)

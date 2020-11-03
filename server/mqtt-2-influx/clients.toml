@@ -1,0 +1,13 @@
+[[client]]
+  mac = "FE:ED:C0:DE:00:00:00:00"
+  [client.tags]
+    floor = "1"
+    building = "main"
+    room = "102"
+
+[[client]]
+  mac = "FE:ED:C0:DE:00:00:00:01"
+  [client.tags]
+    floor = "2"
+    building = "main"
+    room = "213"
