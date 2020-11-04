@@ -33,13 +33,14 @@ import (
 const (
 	mqttURL     string = "mqtt:1883"
 	mqttURLTest string = "localhost:8883"
-	mqttTopic   string = "kiwi/+/sensor/#" //  '+' = mac, '#' = measurement \in {Temperatur, Pressure, Humidity, CO2}
-	mqttRegex   string = "kiwi/([^/]+)/sensor/([^/]+)"
+	mqttRegex   string = "kiwi/([^/]+)/(sensor|state)/([^/]+)"
 
 	influxURL      string = "influxdb:8086"
 	influxURLTest  string = "localhost:8086"
 	influxDatabase string = "kiwi"
 )
+
+var mqttTopics [2]string = [2]string{"kiwi/+/sensor/#", "kiwi/+/state/#"} //  '+' = mac, '#' = measurement \in {Temperatur, Pressure, Humidity, CO2}
 
 type sensorData struct {
 	kind      string
@@ -52,23 +53,32 @@ type Config struct {
 }
 
 type Client struct {
-	Mac  string            `toml:"mac"`
-	Name string            `toml:"name"`
-	Tags map[string]string `toml:"tags"`
+	Mac  string                 `toml:"mac"`
+	Name string                 `toml:"name"`
+	Tags map[string]interface{} `toml:"tags"`
 }
 
 func parseMqttMessage(topic string, payload []byte) sensorData {
-	regex, err := regexp.Compile("kiwi/([^/]+)/sensor/([^/]+)")
+	regex, err := regexp.Compile(mqttRegex)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return sensorData{regex.FindStringSubmatch(topic)[2], regex.FindStringSubmatch(topic)[1], string(payload)}
+	return sensorData{regex.FindStringSubmatch(topic)[3], regex.FindStringSubmatch(topic)[1], string(payload)}
 }
 
-func createKeyValuePairs(m map[string]string) string {
+func createKeyValuePairs(m map[string]interface{}) string {
 	b := new(bytes.Buffer)
 	for key, value := range m {
-		fmt.Fprintf(b, ",%s=\"%s\"", key, value)
+		switch value.(type) {
+		case string:
+			fmt.Fprintf(b, ",%s=\"%s\"", key, value)
+		case float64:
+			fmt.Fprintf(b, ",%s=%.2f", key, value)
+		case int64:
+			fmt.Fprintf(b, ",%s=%d", key, value)
+		default:
+			fmt.Fprintf(b, ",%s=\"%s\"", key, value)
+		}
 	}
 	return b.String()
 }
@@ -147,9 +157,11 @@ func connHandler(client libmqtt.Client, server string, code byte, err error) {
 
 	// connected
 	go func() {
-		client.Subscribe([]*libmqtt.Topic{
-			{Name: mqttTopic, Qos: libmqtt.Qos0},
-		}...)
+		for i := 0; i < len(mqttTopics); i++ {
+			client.Subscribe([]*libmqtt.Topic{
+				{Name: mqttTopics[i], Qos: libmqtt.Qos0},
+			}...)
+		}
 	}()
 }
 
