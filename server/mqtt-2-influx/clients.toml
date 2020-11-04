@@ -1,13 +1,13 @@
 [[client]]
   mac = "FE:ED:C0:DE:00:00:00:00"
+  name = "L1.102"
   [client.tags]
     floor = "1"
     building = "main"
-    room = "102"
 
 [[client]]
   mac = "FE:ED:C0:DE:00:00:00:01"
+  name = "L2.213"
   [client.tags]
     floor = "2"
     building = "main"
-    room = "213"

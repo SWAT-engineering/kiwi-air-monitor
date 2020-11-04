@@ -52,6 +52,7 @@ type Config struct {
 
 type Client struct {
 	Mac  string            `toml:"mac"`
+	Name string            `toml:"name"`
 	Tags map[string]string `toml:"tags"`
 }
 
@@ -86,7 +87,7 @@ func addTags(data sensorData) string {
 	for i := 0; i < len(clients); i++ {
 		client := clients[i]
 		if client.Mac == data.clientMac {
-			influxLine = fmt.Sprintf("%s,device=%s%s value=%s", data.kind, data.clientMac, createKeyValuePairs(client.Tags), data.value)
+			influxLine = fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value)
 		}
 	}
 	return influxLine
