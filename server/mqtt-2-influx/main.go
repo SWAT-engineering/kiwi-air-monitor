@@ -18,6 +18,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -77,20 +78,28 @@ func addTags(data sensorData) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	var influxLine string
 	config := Config{}
 	if err := tree.Unmarshal(&config); err != nil {
 		panic(err)
 	}
-	clients := config.Clients
-	for i := 0; i < len(clients); i++ {
-		client := clients[i]
-		if client.Mac == data.clientMac {
-			influxLine = fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value)
-		}
+	client, err := getClient(data.clientMac, config.Clients)
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		influxLine = fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value)
 	}
 	return influxLine
+}
+
+func getClient(mac string, clients []Client) (Client, error) {
+	for i := 0; i < len(clients); i++ {
+		client := clients[i]
+		if client.Mac == mac {
+			return client, nil
+		}
+	}
+	return Client{}, errors.New("No config with mac \"" + mac + "\" found")
 }
 
 // ExampleClient example of client creation
@@ -163,7 +172,7 @@ func subHandler(client libmqtt.Client, topics []*libmqtt.Topic, err error) {
 		}
 	} else {
 		for _, t := range topics {
-			log.Printf("subscribe to topic [%v] success: %v", t.Name, err)
+			log.Printf("subscribe to topic [%v] succeeded", t.Name)
 		}
 	}
 }
@@ -176,7 +185,7 @@ func unSubHandler(client libmqtt.Client, topic []string, err error) {
 		}
 	} else {
 		for _, t := range topic {
-			log.Printf("unsubscribe to topic [%v] failed: %v", t, err)
+			log.Printf("unsubscribe to topic [%v] succeeded", t)
 		}
 	}
 }
@@ -185,7 +194,7 @@ func pubHandler(client libmqtt.Client, topic string, err error) {
 	if err != nil {
 		log.Printf("publish packet to topic [%v] failed: %v", topic, err)
 	} else {
-		log.Printf("publish packet to topic [%v] success: %v", topic, err)
+		log.Printf("publish packet to topic [%v] succeeded", topic)
 	}
 }
 
