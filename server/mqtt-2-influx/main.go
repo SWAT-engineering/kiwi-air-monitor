@@ -18,6 +18,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -59,32 +60,37 @@ type Client struct {
 	Tags map[string]interface{} `toml:"tags"`
 }
 
-func parseMqttMessage(topic string, payload []byte) sensorData {
+func parseMqttMessage(topic string, payload []byte) (sensorData, error) {
 	regex, err := regexp.Compile(mqttRegex)
 	if err != nil {
-		log.Fatal(err)
+		return sensorData{}, err
 	}
-	return sensorData{regex.FindStringSubmatch(topic)[3], regex.FindStringSubmatch(topic)[1], string(payload)}
+	return sensorData{regex.FindStringSubmatch(topic)[3], regex.FindStringSubmatch(topic)[1], string(payload)}, nil
 }
 
-func loadConfig() {
+func loadConfig() error {
 	source, err := os.Open("clients.toml")
 	if err != nil {
-		panic(err)
+		return err
 	}
 	config := Config{}
 	if err := toml.NewDecoder(source).Decode(&config); err != nil {
-		panic(err)
+		return err
 	}
 	clientData = make(map[string]Client)
 	for _, client := range config.Clients {
 		clientData[client.Mac] = client
 	}
+	return nil
 }
 
-func addTags(data sensorData) string {
-	client := clientData[data.clientMac]
-	return fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value)
+func addTags(data sensorData) (string, error) {
+	client, found := clientData[data.clientMac]
+	if found {
+		return fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value), nil
+	} else {
+		return "", errors.New("No configuration in clients.toml for device with mac " + data.clientMac)
+	}
 }
 
 func createKeyValuePairs(m map[string]interface{}) string {
@@ -104,7 +110,7 @@ func createKeyValuePairs(m map[string]interface{}) string {
 	return b.String()
 }
 
-func createClient() libmqtt.Client {
+func createClient() (libmqtt.Client, error) {
 	var (
 		client libmqtt.Client
 		err    error
@@ -127,12 +133,7 @@ func createClient() libmqtt.Client {
 		libmqtt.WithPersistHandleFunc(persistHandler),
 	)
 
-	if err != nil {
-		// handle client creation error
-		panic("mqtt client could not be created")
-	}
-
-	return client
+	return client, err
 }
 
 func connHandler(client libmqtt.Client, server string, code byte, err error) {
@@ -202,11 +203,20 @@ func pubHandler(client libmqtt.Client, topic string, err error) {
 }
 
 func main() {
-	client := createClient()
+	client, err := createClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	loadConfig()
 	client.HandleTopic(".*", func(client libmqtt.Client, topic string, qos libmqtt.QosLevel, msg []byte) {
-		data := parseMqttMessage(topic, msg)
-		influxLine := addTags(data)
+		data, err := parseMqttMessage(topic, msg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		influxLine, err := addTags(data)
+		if err != nil {
+			log.Fatal(err)
+		}
 		log.Printf(influxLine)
 		resp, err := http.Post("http://"+influxURL+"/write?db="+influxDatabase, "application/json", strings.NewReader(influxLine))
 		if err != nil {
@@ -216,9 +226,8 @@ func main() {
 	})
 
 	// connect tcp server
-	err := client.ConnectServer(mqttURL)
+	err = client.ConnectServer(mqttURL)
 	if err != nil {
-		// handle client creation error
 		panic("connection not established")
 	}
 
