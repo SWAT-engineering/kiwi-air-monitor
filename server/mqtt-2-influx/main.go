@@ -41,6 +41,7 @@ const (
 )
 
 var mqttTopics [2]string = [2]string{"kiwi/+/sensor/#", "kiwi/+/state/#"} //  '+' = mac, '#' = measurement \in {Temperatur, Pressure, Humidity, CO2}
+var clientData *toml.Tree
 
 type sensorData struct {
 	kind      string
@@ -84,13 +85,9 @@ func createKeyValuePairs(m map[string]interface{}) string {
 }
 
 func addTags(data sensorData) string {
-	tree, err := toml.LoadFile("./clients.toml")
-	if err != nil {
-		log.Fatal(err)
-	}
 	var influxLine string
 	config := Config{}
-	if err := tree.Unmarshal(&config); err != nil {
+	if err := clientData.Unmarshal(&config); err != nil {
 		panic(err)
 	}
 	client, err := getClient(data.clientMac, config.Clients)
@@ -212,7 +209,11 @@ func pubHandler(client libmqtt.Client, topic string, err error) {
 
 func main() {
 	client := createClient()
-
+	var err error
+	clientData, err = toml.LoadFile("./clients.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
 	// handle every subscribed message
 	client.HandleTopic(".*", func(client libmqtt.Client, topic string, qos libmqtt.QosLevel, msg []byte) {
 		data := parseMqttMessage(topic, msg)
@@ -226,7 +227,7 @@ func main() {
 	})
 
 	// connect tcp server
-	err := client.ConnectServer(mqttURL)
+	err = client.ConnectServer(mqttURL)
 	if err != nil {
 		// handle client creation error
 		panic("connection not established")
