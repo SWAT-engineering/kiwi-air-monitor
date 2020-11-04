@@ -18,10 +18,10 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -41,7 +41,7 @@ const (
 )
 
 var mqttTopics [2]string = [2]string{"kiwi/+/sensor/#", "kiwi/+/state/#"} //  '+' = mac, '#' = measurement \in {Temperatur, Pressure, Humidity, CO2}
-var clientData *toml.Tree
+var clientData map[string]Client
 
 type sensorData struct {
 	kind      string
@@ -67,6 +67,26 @@ func parseMqttMessage(topic string, payload []byte) sensorData {
 	return sensorData{regex.FindStringSubmatch(topic)[3], regex.FindStringSubmatch(topic)[1], string(payload)}
 }
 
+func loadConfig() {
+	source, err := os.Open("clients.toml")
+	if err != nil {
+		panic(err)
+	}
+	config := Config{}
+	if err := toml.NewDecoder(source).Decode(&config); err != nil {
+		panic(err)
+	}
+	clientData = make(map[string]Client)
+	for _, client := range config.Clients {
+		clientData[client.Mac] = client
+	}
+}
+
+func addTags(data sensorData) string {
+	client := clientData[data.clientMac]
+	return fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value)
+}
+
 func createKeyValuePairs(m map[string]interface{}) string {
 	b := new(bytes.Buffer)
 	for key, value := range m {
@@ -84,32 +104,6 @@ func createKeyValuePairs(m map[string]interface{}) string {
 	return b.String()
 }
 
-func addTags(data sensorData) string {
-	var influxLine string
-	config := Config{}
-	if err := clientData.Unmarshal(&config); err != nil {
-		panic(err)
-	}
-	client, err := getClient(data.clientMac, config.Clients)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		influxLine = fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value)
-	}
-	return influxLine
-}
-
-func getClient(mac string, clients []Client) (Client, error) {
-	for i := 0; i < len(clients); i++ {
-		client := clients[i]
-		if client.Mac == mac {
-			return client, nil
-		}
-	}
-	return Client{}, errors.New("No config with mac \"" + mac + "\" found")
-}
-
-// ExampleClient example of client creation
 func createClient() libmqtt.Client {
 	var (
 		client libmqtt.Client
@@ -154,9 +148,9 @@ func connHandler(client libmqtt.Client, server string, code byte, err error) {
 
 	// connected
 	go func() {
-		for i := 0; i < len(mqttTopics); i++ {
+		for _, topic := range mqttTopics {
 			client.Subscribe([]*libmqtt.Topic{
-				{Name: mqttTopics[i], Qos: libmqtt.Qos0},
+				{Name: topic, Qos: libmqtt.Qos0},
 			}...)
 		}
 	}()
@@ -209,12 +203,7 @@ func pubHandler(client libmqtt.Client, topic string, err error) {
 
 func main() {
 	client := createClient()
-	var err error
-	clientData, err = toml.LoadFile("./clients.toml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	// handle every subscribed message
+	loadConfig()
 	client.HandleTopic(".*", func(client libmqtt.Client, topic string, qos libmqtt.QosLevel, msg []byte) {
 		data := parseMqttMessage(topic, msg)
 		influxLine := addTags(data)
@@ -227,7 +216,7 @@ func main() {
 	})
 
 	// connect tcp server
-	err = client.ConnectServer(mqttURL)
+	err := client.ConnectServer(mqttURL)
 	if err != nil {
 		// handle client creation error
 		panic("connection not established")
