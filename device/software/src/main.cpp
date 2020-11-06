@@ -6,11 +6,11 @@
 #include "output/display.hpp"
 #include "output/led.hpp"
 #include "output/mqtt.hpp"
+#include "output/thresholds.hpp"
 #include "service/wifi-connection.hpp"
 #include "service/ota-updates.hpp"
 #include "service/mqtt-connection.hpp"
 #include "service/status.hpp"
-#include <PolledTimeout.h>
 
 
 KiwiTimer timer;
@@ -22,6 +22,7 @@ Mqtt *mqtt;
 MqttConnection *mqttCon;
 OTAUpdates *ota;
 Status *status;
+Thresholds *thresh;
 
 /*
 CO2: TX: D8, RX: D5
@@ -39,36 +40,15 @@ void setup() {
   mqttCon = new MqttConnection(wifi, timer);
   ota = new OTAUpdates(wifi, mqttCon, timer);
   sensors = new Sensors(timer);
+  thresh = new Thresholds(sensors, timer);
   display = new Display(sensors, timer);
   led = new BreathingLed(&timer);
   mqtt = new Mqtt(sensors, mqttCon, timer);
   status = new Status(mqttCon, timer);
+  
 }
 
-
-unsigned long min(unsigned long a, unsigned long b) {
-  return a < b ? a : b;
-}
-
-static void checkThresholds() {
-  double co2 = sensors->getCO2();
-  if (!isnan(co2)) {
-    if (co2 > 650) {
-      led->start(SevereWarning);
-    }
-    else if (co2 > 500) {
-      led->start(WarningRising);
-    }
-    else if (co2 < 500) {
-      led->stop();
-    }
-  }
-  else {
-    led->start(Error);
-  }
-}
 
 void loop() { 
-  checkThresholds();
   delay(timer.tick());
 }
