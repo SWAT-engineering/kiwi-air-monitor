@@ -146,15 +146,6 @@ func connHandler(client libmqtt.Client, server string, code byte, err error) {
 		log.Printf("connect to server [%v] failed with server code [%v]", server, code)
 		return
 	}
-
-	// connected
-	go func() {
-		for _, topic := range mqttTopics {
-			client.Subscribe([]*libmqtt.Topic{
-				{Name: topic, Qos: libmqtt.Qos0},
-			}...)
-		}
-	}()
 }
 
 func netHandler(client libmqtt.Client, server string, err error) {
@@ -207,6 +198,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// load config from clients.toml
 	loadConfig()
 	client.HandleTopic(".*", func(client libmqtt.Client, topic string, qos libmqtt.QosLevel, msg []byte) {
 		data, err := parseMqttMessage(topic, msg)
@@ -229,6 +222,13 @@ func main() {
 	err = client.ConnectServer(mqttURL)
 	if err != nil {
 		panic("connection not established")
+	}
+
+	// subscribe to topics
+	for _, topic := range mqttTopics {
+		client.Subscribe([]*libmqtt.Topic{
+			{Name: topic, Qos: libmqtt.Qos0},
+		}...)
 	}
 
 	client.Wait()
