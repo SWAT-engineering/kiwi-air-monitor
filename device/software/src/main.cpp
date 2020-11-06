@@ -3,10 +3,7 @@
 #include "shared-timer.hpp"
 #include "user-config.h"
 #include "sensors/sensors.hpp"
-#include "output/display.hpp"
-#include "output/led.hpp"
-#include "output/mqtt.hpp"
-#include "output/thresholds.hpp"
+#include "output/outputs.hpp"
 #include "service/wifi-connection.hpp"
 #include "service/ota-updates.hpp"
 #include "service/mqtt-connection.hpp"
@@ -14,15 +11,14 @@
 
 
 KiwiTimer timer;
+
 WifiConnection *wifi;
 Sensors *sensors;
-Display *display;
-BreathingLed *led;
-Mqtt *mqtt;
+Outputs *outputs;
+
 MqttConnection *mqttCon;
 OTAUpdates *ota;
 Status *status;
-Thresholds *thresh;
 
 /*
 CO2: TX: D8, RX: D5
@@ -40,10 +36,7 @@ void setup() {
   mqttCon = new MqttConnection(wifi, timer);
   ota = new OTAUpdates(wifi, mqttCon, timer);
   sensors = new Sensors(timer);
-  thresh = new Thresholds(sensors, timer);
-  display = new Display(sensors, timer);
-  led = new BreathingLed(&timer);
-  mqtt = new Mqtt(sensors, mqttCon, timer);
+  outputs = new Outputs(sensors, mqttCon, timer);
   status = new Status(mqttCon, timer);
   
 }

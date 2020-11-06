@@ -17,9 +17,9 @@ private:
     bool updateValues();
     U8G2 *u8g2;
     Sensors *source;
-    bool visible;
-    bool filled;
-    uint16_t minutesPosition;
+    bool visible = true;
+    bool filled = false;
+    uint16_t minutesPosition = 0;
     double co2Values[PLOT_SIZE];
     void renderScreen();
     void displayValues();

@@ -23,7 +23,7 @@ private:
     bool render();
     unsigned long blinkStart;
     uint32_t color;
-    Timer<>::Task activeLed;
-    WarningLevel currentLevel;
+    Timer<>::Task activeLed = (Timer<>::Task)NULL;
+    WarningLevel currentLevel = Disabled;
     Adafruit_NeoPixel *pixel;
 };

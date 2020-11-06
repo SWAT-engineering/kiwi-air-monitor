@@ -1,8 +1,7 @@
 #include "output/display.hpp"
 #include "output/logo.h"
 
-Display::Display(Sensors *sensor, KiwiTimer &timer) : source{sensor}, visible{true},
-        minutesPosition{0}, filled{false}  {
+Display::Display(Sensors *sensor, KiwiTimer &timer) : source{sensor} {
     #ifdef KIWI_SCREEN_64
     u8g2 = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE, D1, D2);
     #else

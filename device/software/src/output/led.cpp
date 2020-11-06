@@ -5,7 +5,7 @@ static const unsigned int AmountOfSteps = 64;
 static const unsigned long totalTime = 2000;
 static const unsigned int timeBetweenBreaths = 500;
 
-BreathingLed::BreathingLed(KiwiTimer *timer): timer{timer},  currentLevel{Disabled}, activeLed{(Timer<>::Task)NULL}  {
+BreathingLed::BreathingLed(KiwiTimer *timer): timer{timer} {
     pixel = new Adafruit_NeoPixel(1, D3, NEO_GRB + NEO_KHZ800);
     pixel->begin();
     pixel->clear();
