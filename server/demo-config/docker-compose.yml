@@ -35,6 +35,8 @@ services:
     build: ../mqtt-2-influx/
     networks:
       - kiwi-private
+    depends_on:
+      - mqtt
 
   grafana:
     image: grafana/grafana:7.2.2

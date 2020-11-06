@@ -125,72 +125,9 @@ func createClient() (libmqtt.Client, error) {
 		// use RegexRouter for topic routing if not specified
 		// will use TextRouter, which will match full text
 		libmqtt.WithRouter(libmqtt.NewRegexRouter()),
-		libmqtt.WithConnHandleFunc(connHandler),
-		libmqtt.WithNetHandleFunc(netHandler),
-		libmqtt.WithSubHandleFunc(subHandler),
-		libmqtt.WithUnsubHandleFunc(unSubHandler),
-		libmqtt.WithPubHandleFunc(pubHandler),
-		libmqtt.WithPersistHandleFunc(persistHandler),
 	)
 
 	return client, err
-}
-
-func connHandler(client libmqtt.Client, server string, code byte, err error) {
-	if err != nil {
-		log.Printf("connect to server [%v] failed: %v", server, err)
-		return
-	}
-
-	if code != libmqtt.CodeSuccess {
-		log.Printf("connect to server [%v] failed with server code [%v]", server, code)
-		return
-	}
-}
-
-func netHandler(client libmqtt.Client, server string, err error) {
-	if err != nil {
-		log.Printf("error happened to connection to server [%v]: %v", server, err)
-	}
-}
-
-func persistHandler(client libmqtt.Client, packet libmqtt.Packet, err error) {
-	if err != nil {
-		log.Printf("session persist error: %v", err)
-	}
-}
-
-func subHandler(client libmqtt.Client, topics []*libmqtt.Topic, err error) {
-	if err != nil {
-		for _, t := range topics {
-			log.Printf("subscribe to topic [%v] failed: %v", t.Name, err)
-		}
-	} else {
-		for _, t := range topics {
-			log.Printf("subscribe to topic [%v] succeeded", t.Name)
-		}
-	}
-}
-
-func unSubHandler(client libmqtt.Client, topic []string, err error) {
-	if err != nil {
-		// handle unsubscribe failure
-		for _, t := range topic {
-			log.Printf("unsubscribe to topic [%v] failed: %v", t, err)
-		}
-	} else {
-		for _, t := range topic {
-			log.Printf("unsubscribe to topic [%v] succeeded", t)
-		}
-	}
-}
-
-func pubHandler(client libmqtt.Client, topic string, err error) {
-	if err != nil {
-		log.Printf("publish packet to topic [%v] failed: %v", topic, err)
-	} else {
-		log.Printf("publish packet to topic [%v] succeeded", topic)
-	}
 }
 
 func main() {
