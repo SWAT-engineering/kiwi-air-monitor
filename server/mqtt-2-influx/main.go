@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,12 +19,16 @@ const (
 	mqttURLTest string = "localhost:8883"
 	mqttRegex   string = "kiwi/([^/]+)/(sensor|state)/([^/]+)"
 
-	influxURL      string = "influxdb:8086"
-	influxURLTest  string = "localhost:8086"
-	influxDatabase string = "kiwi"
+	influxURL            string = "influxdb:8086"
+	influxURLTest        string = "localhost:8086"
+	influxDatabase       string = "kiwi"
+	influxWriteStatement string = "http://" + influxURL + "/write?db=" + influxDatabase
 )
 
-var mqttTopics [2]string = [2]string{"kiwi/+/sensor/#", "kiwi/+/state/#"} //  '+' = mac, '#' = measurement \in {Temperatur, Pressure, Humidity, CO2}
+func getMqttTopics() []string {
+	return []string{"kiwi/+/sensor/#", "kiwi/+/state/#"}
+}
+
 var clientData map[string]Client
 
 type sensorData struct {
@@ -44,11 +47,7 @@ type Client struct {
 	Tags map[string]interface{} `toml:"tags"`
 }
 
-func parseMqttMessage(topic string, payload []byte) (sensorData, error) {
-	regex, err := regexp.Compile(mqttRegex)
-	if err != nil {
-		return sensorData{}, err
-	}
+func parseMqttMessage(topic string, payload []byte, regex *regexp.Regexp) (sensorData, error) {
 	return sensorData{regex.FindStringSubmatch(topic)[3], regex.FindStringSubmatch(topic)[1], string(payload)}, nil
 }
 
@@ -65,16 +64,16 @@ func loadConfig() error {
 	for _, client := range config.Clients {
 		clientData[client.Mac] = client
 	}
+	defer source.Close()
 	return nil
 }
 
-func addTags(data sensorData) (string, error) {
+func createInfluxLine(data sensorData) (string, error) {
 	client, found := clientData[data.clientMac]
 	if found {
 		return fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value), nil
-	} else {
-		return "", errors.New("No configuration in clients.toml for device with mac " + data.clientMac)
 	}
+	return fmt.Sprintf("%s,device=\"%s\" value=%s", data.kind, data.clientMac, data.value), nil
 }
 
 func createKeyValuePairs(m map[string]interface{}) string {
@@ -106,8 +105,6 @@ func createClient() (libmqtt.Client, error) {
 		// enable auto reconnect and set backoff strategy
 		libmqtt.WithAutoReconnect(true),
 		libmqtt.WithBackoffStrategy(time.Second, 5*time.Second, 1.2),
-		// use RegexRouter for topic routing if not specified
-		// will use TextRouter, which will match full text
 		libmqtt.WithRouter(libmqtt.NewRegexRouter()),
 	)
 
@@ -120,6 +117,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	regex, err := regexp.Compile(mqttRegex)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// load config from clients.toml
 	err = loadConfig()
 	if err != nil {
@@ -127,16 +129,17 @@ func main() {
 	}
 
 	client.HandleTopic(".*", func(client libmqtt.Client, topic string, qos libmqtt.QosLevel, msg []byte) {
-		data, err := parseMqttMessage(topic, msg)
+		data, err := parseMqttMessage(topic, msg, regex)
 		if err != nil {
 			log.Println(err)
+			return
 		}
-		influxLine, err := addTags(data)
+		influxLine, err := createInfluxLine(data)
 		if err != nil {
 			log.Println(err)
 		}
 		log.Printf(influxLine)
-		resp, err := http.Post("http://"+influxURL+"/write?db="+influxDatabase, "application/json", strings.NewReader(influxLine))
+		resp, err := http.Post(influxWriteStatement, "application/json", strings.NewReader(influxLine))
 		if err != nil {
 			log.Println(err)
 		}
@@ -150,7 +153,7 @@ func main() {
 	}
 
 	// subscribe to topics
-	for _, topic := range mqttTopics {
+	for _, topic := range getMqttTopics() {
 		client.Subscribe([]*libmqtt.Topic{
 			{Name: topic, Qos: libmqtt.Qos0},
 		}...)
