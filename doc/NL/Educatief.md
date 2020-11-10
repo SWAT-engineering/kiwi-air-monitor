@@ -1,0 +1,3 @@
+Lijkt het je leuk om dit project om te zetten naar een lespakket voor de laatste klassen van de basisschool of voor lessen op de middelbare school, laat het ons weten en zoek contact op!
+
+TODO: contactgegevens toevoegen

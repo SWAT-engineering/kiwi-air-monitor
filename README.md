@@ -3,7 +3,7 @@
 </p>
 
 
-Kiwi monitor is an open source CO2/Humidity/Temperature sensor intended for monitoring the indoor air quality. Kiwi was created to support teachers with a notification to ventilate their classroom.
+Kiwi air monitor is an open source CO2/Humidity/Temperature sensor intended for monitoring the indoor air quality. Kiwi air monitor was initiated by [swat.engineering](https://www.swat.engineering) to support teachers and school organizations with the ventilation of the class rooms. 
 
 ## Features
 
@@ -11,18 +11,25 @@ Kiwi monitor is an open source CO2/Humidity/Temperature sensor intended for moni
 - Display current measurements and its trend on a small display
 - Blink a warning light if certain thresholds are reached (> 1000ppm CO2 for example)
 - Optionally: publish sensor readings to a (self hosted) MQTT server to allow building wide monitoring
-- Optionally: measure PM2.5 & PM10 concentrations
 - Optionally: partial remote control via MQTT
-- Over the Air updates of new firmware
+- Optionally: Updating firmware over wifi (OTA) 
+
+Due to the cost-cutting concern, we have focussed more on precision instead of accuracy. Meaning that if a value increases, it should indeed represent an increase in that property, but it is acceptable to have a bias with respect to more expensive measurements. So you might get a temperature of 20.4 degrees C even though it iss actually 20.9 degrees C but if it increases to 20.5 degrees C it indeed is now 21.0 degrees C.
 
 
 ## Hardware
 
-The hardware is build around the ESP8266 platform. The costs (in the Netherlands) are roughly €45-50 per device (add extra €25 for the PM2.5&PM10 sensor). The bill of materials and schemas can be found in the [device/design directory](device/design/).
+The hardware is build around the ESP8266 platform. The costs (in the Netherlands) are roughly €45-50 per device. The list of components and schemas can be found in the [device/design directory](device/design/).
 
-## Software
+TODO: replace this to link of docs.
 
-### Kiwi monitor
+## Documentation
+Please check out the documentation for further details and instructions about hardware and software, and user manuals:
+1 [English](doc/ENG/) 
+2 [Dutch](doc/NL/)
+
+
+## Licenses
 
 The software is custom made (GPLv3 licensed), based on the following frameworks and libraries:
 
@@ -34,6 +41,9 @@ The software is custom made (GPLv3 licensed), based on the following frameworks 
 - [Adafruit NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel)
 
 The project is compiled using [Platform IO](https://platformio.org/). During compilation your specific unit is configured (WiFi, MQTT).
+
+
+TODO: volgens mij kan het volgende allemaal weg als ook de engelse documentatie op orde is...
 
 The documentation related to MQTT messages can be found in the [server directory](server/).
 
