@@ -52,7 +52,7 @@ func parseMqttMessage(topic string, payload []byte, regex *regexp.Regexp) (senso
 }
 
 func loadConfig() error {
-	source, err := os.Open("clients.toml")
+	source, err := os.Open("./conf/clients.toml")
 	if err != nil {
 		return err
 	}
@@ -153,11 +153,11 @@ func main() {
 	}
 
 	// subscribe to topics
-	for _, topic := range getMqttTopics() {
-		client.Subscribe([]*libmqtt.Topic{
-			{Name: topic, Qos: libmqtt.Qos0},
-		}...)
+	topics := make([]*libmqtt.Topic, len(getMqttTopics()))
+	for index, topic := range getMqttTopics() {
+		topics[index] = &libmqtt.Topic{Name: topic, Qos: libmqtt.Qos0}
 	}
+	client.Subscribe(topics...)
 
 	client.Wait()
 }

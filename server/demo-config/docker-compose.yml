@@ -28,7 +28,9 @@ services:
         hard: 65536
   
   mqtt-2-influx:
-    build: ../mqtt-2-influx/
+    image: swat/mqtt-2-influx:latest
+    volumes:
+      - "./conf/clients.toml:/app/conf/clients.toml"
     depends_on:
       - mqtt
 
@@ -41,6 +43,3 @@ services:
       - './conf/grafana/grafana.ini:/etc/grafana/grafana.ini'
       - './conf/grafana/provisioning/:/etc/grafana/provisioning/'
     restart: unless-stopped
-
-networks:
-  kiwi-private:
