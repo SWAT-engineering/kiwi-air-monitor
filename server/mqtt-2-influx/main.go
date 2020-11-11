@@ -15,21 +15,20 @@ import (
 )
 
 const (
-	mqttURL     string = "mqtt:1883"
-	mqttURLTest string = "localhost:8883"
-	mqttRegex   string = "kiwi/([^/]+)/(sensor|state)/([^/]+)"
-
-	influxURL            string = "influxdb:8086"
-	influxURLTest        string = "localhost:8086"
-	influxDatabase       string = "kiwi"
-	influxWriteStatement string = "http://" + influxURL + "/write?db=" + influxDatabase
+	mqttRegex      string = "kiwi/([^/]+)/(sensor|state)/([^/]+)"
+	influxDatabase string = "kiwi"
 )
 
 func getMqttTopics() []string {
 	return []string{"kiwi/+/sensor/#", "kiwi/+/state/#"}
 }
 
-var clientData map[string]Client
+var (
+	clientData           map[string]Client
+	mqttURL              string = "mqtt:1883"
+	influxURL            string = "influxdb:8086"
+	influxWriteStatement string = "http://" + influxURL + "/write?db=" + influxDatabase
+)
 
 type sensorData struct {
 	kind      string
@@ -39,12 +38,18 @@ type sensorData struct {
 
 type Config struct {
 	Clients []Client `toml:"client"`
+	Server  Server   `toml:"server"`
 }
 
 type Client struct {
 	Mac  string                 `toml:"mac"`
 	Name string                 `toml:"name"`
 	Tags map[string]interface{} `toml:"tags"`
+}
+
+type Server struct {
+	MqttAddress   string `toml:"mqttAddress"`
+	InfluxAddress string `toml:"influxAddress"`
 }
 
 func parseMqttMessage(topic string, payload []byte, regex *regexp.Regexp) (sensorData, error) {
@@ -60,6 +65,12 @@ func loadConfig() error {
 	if err := toml.NewDecoder(source).Decode(&config); err != nil {
 		return err
 	}
+	if len(config.Server.MqttAddress) > 0 {
+		mqttURL = config.Server.MqttAddress
+	}
+	if len(config.Server.InfluxAddress) > 0 {
+		influxURL = config.Server.InfluxAddress
+	}
 	clientData = make(map[string]Client)
 	for _, client := range config.Clients {
 		clientData[client.Mac] = client
@@ -68,12 +79,12 @@ func loadConfig() error {
 	return nil
 }
 
-func createInfluxLine(data sensorData) (string, error) {
+func createInfluxLine(data sensorData) string {
 	client, found := clientData[data.clientMac]
 	if found {
-		return fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value), nil
+		return fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value)
 	}
-	return fmt.Sprintf("%s,device=\"%s\" value=%s", data.kind, data.clientMac, data.value), nil
+	return fmt.Sprintf("%s,device=\"%s\" value=%s", data.kind, data.clientMac, data.value)
 }
 
 func createKeyValuePairs(m map[string]interface{}) string {
@@ -134,10 +145,7 @@ func main() {
 			log.Println(err)
 			return
 		}
-		influxLine, err := createInfluxLine(data)
-		if err != nil {
-			log.Println(err)
-		}
+		influxLine := createInfluxLine(data)
 		log.Printf(influxLine)
 		resp, err := http.Post(influxWriteStatement, "application/json", strings.NewReader(influxLine))
 		if err != nil {
