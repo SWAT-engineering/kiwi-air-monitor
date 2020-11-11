@@ -32,7 +32,8 @@
 			"random": "cpp",
 			"limits": "cpp",
 			"stdexcept": "cpp",
-			"optional": "cpp"
+			"optional": "cpp",
+			"atomic": "cpp"
 		}
 	}
 }

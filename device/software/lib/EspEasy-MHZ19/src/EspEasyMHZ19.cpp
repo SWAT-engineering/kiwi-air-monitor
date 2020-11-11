@@ -6,6 +6,7 @@ void EspEasyMHZ19::init() {
     if (hardware != nullptr) {
         delete hardware;
     }
+    Serial.println("Initializing CO2 sensor");
     hardware = new P049_data_struct();
     hardware->init(rx, tx, abcDisabled);
     initializing = true;
@@ -84,6 +85,8 @@ uint16_t EspEasyMHZ19::readCO2() {
                 }
             }
             else {
+                Serial.println("Nothing from co2 sensor yet:");
+                Serial.println(log.c_str());
                 return 0;
             }
         }
@@ -95,6 +98,7 @@ uint16_t EspEasyMHZ19::readCO2() {
     else {
         // Check for stable reads and allow unstable reads the first 3 minutes after reset.
         if (hardware->nrUnknownResponses > 10 && hardware->initTimePassed) {
+            Serial.println("CO2 sensor: Too many errors, resetting connection");
             init();
         }
         return 0;

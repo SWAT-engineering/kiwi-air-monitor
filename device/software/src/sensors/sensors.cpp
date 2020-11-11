@@ -21,7 +21,7 @@ Sensors::Sensors(KiwiTimer &timer) {
 
 bool Sensors::update() {
     uint16_t co2value = co2.measure();
-    if (co2value > 0) {
+    if (co2value > 100 && co2value < 5000) {
         co2Smoothed.put(co2value);
     }
     else {
