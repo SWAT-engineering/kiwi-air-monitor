@@ -5,11 +5,33 @@ static const unsigned int AmountOfSteps = 64;
 static const unsigned long totalTime = 2000;
 static const unsigned int timeBetweenBreaths = 500;
 
-BreathingLed::BreathingLed(KiwiTimer *timer): timer{timer} {
-    pixel = new Adafruit_NeoPixel(1, D3, NEO_GRB + NEO_KHZ800);
+#define DEMO(__timer, __after,__level) \
+    (__timer)->in(__after, [](void * self) -> bool { \
+        static_cast<BreathingLed *>(self)->start(__level); \
+        return false; \
+    }, static_cast<void *>(this))
+
+BreathingLed::BreathingLed(Thresholds *thres, KiwiTimer *timer): timer{timer}, thresh{thres}, currentLevel{Disabled} {
+    pixel = new Adafruit_NeoPixel(1, D4, NEO_GRB + NEO_KHZ800);
     pixel->begin();
     pixel->clear();
     pixel->show();
+    EVERY(*timer, 10*1000, BreathingLed, updateThresholds);
+    DEMO(timer, 100, WarningDecreasing);
+    DEMO(timer, 2100, WarningRising);
+    DEMO(timer, 5100, SevereWarning);
+    DEMO(timer, 8000, Disabled);
+}
+
+
+bool BreathingLed::updateThresholds() {
+    switch (thresh->getSeverity()) {
+        case NONE_EXCEEDED: stop(); return true;
+        case LEVEL1_DECREASING: start(WarningDecreasing); return true;
+        case LEVEL1_INCREASING: start(WarningRising); return true;
+        case LEVEL2: start(SevereWarning); return true;
+    }
+    return true;
 }
 
 static uint32_t calculateColor(float position, uint32_t color);
@@ -35,16 +57,16 @@ void BreathingLed::start(WarningLevel level) {
     blinkStart = millis();
     switch (level) {
         case WarningRising:
-            color = 0xf46d43;
+            color = 0xF4A736;
             break;
         case WarningDecreasing:
-            color = 0xfdae61;
+            color = 0xF7F056;
             break;
         case SevereWarning:
-            color = 0xd73027;
+            color = 0xDC050C;
             break;
         case Error:
-            color = 0x74add1;
+            color = 0x1965B0;
             break;
     }
     if (activeLed == (Timer<>::Task)NULL){

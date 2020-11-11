@@ -10,9 +10,11 @@ Thresholds::Thresholds(Sensors *sensor, KiwiTimer &timer): sensor{sensor} {
 }
 
 bool Thresholds::measure() {
-    double co2 = sensor->getCO2();
-    if (!isnan(co2)) {
-        co2Smoothed.put(co2);
+    if (sensor->hasCO2()) {
+        double co2 = sensor->getCO2();
+        if (!isnan(co2)) {
+            co2Smoothed.put(co2);
+        }
     }
     return true;
 }

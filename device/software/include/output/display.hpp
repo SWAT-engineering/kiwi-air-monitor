@@ -5,7 +5,7 @@
 #include "shared-timer.hpp"
 
 constexpr u8g2_uint_t PLOT_SIZE = 32;
-constexpr unsigned long PIXEL_DURATION = 60 * 1000;
+constexpr unsigned long PIXEL_DURATION = 10 * 1000;
 
 class Display {
 public:
@@ -22,6 +22,7 @@ private:
     uint16_t minutesPosition = 0;
     double co2Values[PLOT_SIZE];
     void renderScreen();
-    void displayValues();
+    void renderLogo();
+    bool displayValues();
     void plotGraph();
 };

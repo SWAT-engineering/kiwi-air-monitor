@@ -2,28 +2,32 @@
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 #include "shared-timer.hpp"
+#include "thresholds.hpp"
 
 enum WarningLevel {
-    WarningRising = 0,
+    Disabled = 0,
+    WarningRising,
     WarningDecreasing,
     SevereWarning,
     Error,
-    Disabled
 };
 
 class BreathingLed {
 public:
-    BreathingLed(KiwiTimer *timer);
+    BreathingLed(Thresholds* thresh, KiwiTimer *timer);
 
     void start(WarningLevel level);
     void stop();
 
 private:
     KiwiTimer *timer;
+    Thresholds *thresh;
     bool render();
+    bool updateThresholds();
+
     unsigned long blinkStart;
     uint32_t color;
     Timer<>::Task activeLed = (Timer<>::Task)NULL;
-    WarningLevel currentLevel = Disabled;
+    WarningLevel currentLevel;
     Adafruit_NeoPixel *pixel;
 };
