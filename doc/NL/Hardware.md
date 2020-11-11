@@ -29,8 +29,8 @@ Hieronder een samenvatting van de verbindingen:
 | --- | --- | --- |
 | MH-Z19B | VCC | 5V |
 | | GND | G (GND) |
-| | TX | D8 |
-| | RX | D5 |
+| | TX | D5 |
+| | RX | D8 |
 | BME280 & SSD1306 | VCC | 3.3V |
 | | GND | G |
 | | SCL/SCK | D1 |
