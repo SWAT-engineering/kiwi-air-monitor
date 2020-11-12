@@ -76,10 +76,10 @@ func parseMqttMessage(topic string, payload []byte, regex *regexp.Regexp) (senso
 
 func loadConfig() error {
 	source, err := os.Open("./conf/clients.toml")
-	defer source.Close()
 	if err != nil {
 		return err
 	}
+	defer source.Close()
 	config := Config{}
 	if err := toml.NewDecoder(source).Decode(&config); err != nil {
 		return err
