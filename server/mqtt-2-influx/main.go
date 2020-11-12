@@ -1,3 +1,20 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// mqtt-2-influx transforms kiwi mqtt messages and annotates them into influxdb
+// Copyright (C) 2020  Marie-Saphira Flug
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 package main
 
 import (
@@ -53,11 +70,13 @@ type Server struct {
 }
 
 func parseMqttMessage(topic string, payload []byte, regex *regexp.Regexp) (sensorData, error) {
-	return sensorData{regex.FindStringSubmatch(topic)[3], regex.FindStringSubmatch(topic)[1], string(payload)}, nil
+	matches := regex.FindStringSubmatch(topic)
+	return sensorData{matches[3], matches[1], string(payload)}, nil
 }
 
 func loadConfig() error {
 	source, err := os.Open("./conf/clients.toml")
+	defer source.Close()
 	if err != nil {
 		return err
 	}
@@ -71,11 +90,11 @@ func loadConfig() error {
 	if len(config.Server.InfluxAddress) > 0 {
 		influxURL = config.Server.InfluxAddress
 	}
+	influxWriteStatement = "http://" + influxURL + "/write?db=" + influxDatabase
 	clientData = make(map[string]Client)
 	for _, client := range config.Clients {
 		clientData[client.Mac] = client
 	}
-	defer source.Close()
 	return nil
 }
 
@@ -92,7 +111,7 @@ func createKeyValuePairs(m map[string]interface{}) string {
 	for key, value := range m {
 		switch value.(type) {
 		case string:
-			fmt.Fprintf(b, ",%s=\"%s\"", key, value)
+			fmt.Fprintf(b, ",%s=\"%s\"", key, strings.Replace(value.(string), "\"", `\"`, -1))
 		case float64:
 			fmt.Fprintf(b, ",%s=%.2f", key, value)
 		case int64:
@@ -105,12 +124,8 @@ func createKeyValuePairs(m map[string]interface{}) string {
 }
 
 func createClient() (libmqtt.Client, error) {
-	var (
-		client libmqtt.Client
-		err    error
-	)
 
-	client, err = libmqtt.NewClient(
+	return libmqtt.NewClient(
 		// enable keepalive (10s interval) with 20% tolerance
 		libmqtt.WithKeepalive(10, 1.2),
 		// enable auto reconnect and set backoff strategy
@@ -118,8 +133,6 @@ func createClient() (libmqtt.Client, error) {
 		libmqtt.WithBackoffStrategy(time.Second, 5*time.Second, 1.2),
 		libmqtt.WithRouter(libmqtt.NewRegexRouter()),
 	)
-
-	return client, err
 }
 
 func main() {
@@ -127,7 +140,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	regex, err := regexp.Compile(mqttRegex)
 	if err != nil {
 		log.Fatal(err)
@@ -150,16 +162,18 @@ func main() {
 		resp, err := http.Post(influxWriteStatement, "application/json", strings.NewReader(influxLine))
 		if err != nil {
 			log.Println(err)
+			return
 		}
 		resp.Body.Close()
 	})
 
 	// connect tcp server
+	// TODO there needs to be a warning when connection didn't work
 	err = client.ConnectServer(mqttURL)
+	log.Println(err)
 	if err != nil {
 		log.Println(err)
 	}
-
 	// subscribe to topics
 	topics := make([]*libmqtt.Topic, len(getMqttTopics()))
 	for index, topic := range getMqttTopics() {

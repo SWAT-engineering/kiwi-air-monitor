@@ -11,3 +11,7 @@
   [client.tags]
     floor = 2
     building = "main"
+
+[server]
+  influxAddress = "localhost:8086"
+  mqttAddress = "localhost:8883"
