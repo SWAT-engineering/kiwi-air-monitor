@@ -8,6 +8,6 @@ public:
     bool presenceDetected();
 private:
     bool sense();
-    unsigned long lastSeen[16];
+    unsigned long lastSeen[8];
     size_t seenOffset;
 };
