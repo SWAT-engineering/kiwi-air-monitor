@@ -17,7 +17,10 @@ Onderdelen die ook nodig zijn, maar waarvan we aannemen dat je die al hebt:
 - Breadboard en kabeltjes om te experimenteren
 - Soldeerbout
   
-TODO: Hier moet iets komen over de keuze van stroomverbruik (powerbank, voeding?)
+## Stroomverbruik
+
+De Kiwi verbruikt per uur ongeveer 30mAh. Meeste simple USB voedingen voldoen (500mA is ruim voldoende). Daarnaast zijn we een uitbreiding aan het ontwikkelen voor powerbanks erbij op te hangen. Op een powerbank van 2500mAh kun je makkelijk 3 dagen mee draaien. En powerbanks van 6000mAh of meer kun je een week mee vooruit.
+
 
 ## Montage instructies
 
@@ -54,12 +57,22 @@ Hieronder ook het schema voor experimenten met breadboard view.
 
 ![Breadboard view](../../device/design/components_bb.png)
 
-TODO: nog extra uitleg?
+
+## Kabels
+
+TODO: schrijf over kabel boom en plugjes systeem.
 
 ## Behuizing
 Om de electronica te beschermen en netjes weg te werken, is het goed om er een behuizing om heen te maken. Er is een ontwerp gemaakt in de vorm van een kiwi vogel dat met een 3D-printer afgedrukt kan worden. In dit model passen precies alle componenten die hierboven beschreven zijn. Als je geen 3D printer tot je beschikking hebt of liever zelf iets anders maakt. Zie hieronder dan ook een aantal tips waar je aan moet denken bij het ontwerp.
 
 ### 3D-printen van behuizing
+
 TODO: link naar 3D model + extra uitleg? eventueel een foto?
+
 ### Adviezen voor eigen ontwerp
-TODO: toevoegen adviezen
+
+- Zorg ervoor dat componenent niet te dicht bij elkaar zitten
+- De CO2 sensor wil graag frisse lucht, hoe er rekening mee dat er genoeg frisse lucht langs kan stromen. Zowel voor afkoeling als voor accurate meting.
+- Temperatuur en lucht vochtigheids sensor willen ook frisse lucht, en hebben de voorkeur om niet te warm te worden van componenten om hen heen.
+- de bewegings sensor kan storing krijgen van de ESP8266 chip, dus probeer ze niet te dicht bij elkaar te zetten.
+- de bewegings sensor werkt door plastic heen, maar wil wel in 1 cm rond het object liever geen metaal. (dus ook draadjes liever niet teveel)
