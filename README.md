@@ -5,6 +5,7 @@
 
 Kiwi air monitor is an open source CO2/Humidity/Temperature sensor intended for monitoring the indoor air quality. Kiwi air monitor was initiated by [swat.engineering](https://www.swat.engineering) to support teachers and school organizations with the ventilation of the class rooms. 
 
+
 ## Features
 
 - Monitor CO2, Humidity, Temperature, Atmospheric Pressure 
@@ -15,12 +16,16 @@ Kiwi air monitor is an open source CO2/Humidity/Temperature sensor intended for 
 - Optionally: Updating firmware over wifi (OTA) 
 - Optionally: Docker-compose based Dashboard & MQTT server setup
 
+<p align="center">
+    <img src="doc/kiwi-foto-1.jpg" al="Kiwi sensor on a wall" width="50%">
+</p>
+
 Due to the cost-cutting concern, we have focussed more on precision instead of accuracy. Meaning that if a value increases, it should indeed represent an increase in that property, but it is acceptable to have a bias with respect to more expensive measurements. So you might get a temperature of 20.4 degrees C even though it iss actually 20.9 degrees C but if it increases to 20.5 degrees C it indeed is now 21.0 degrees C.
 
 
 ## Hardware
 
-The hardware is build around the ESP8266 platform. The costs (in the Netherlands) are roughly €45-50 per device. The list of components and schemas can be found in [doc/NL/Hardware.md](doc/NL/Hardware.md).
+The hardware is build around the ESP8266 platform. The costs (in the Netherlands) are roughly €45-50 per device. The list of components and schemas can be found in [doc/NL/Hardware.md](doc/NL/Hardware.md). We also provide a 3D model to print.
 
 ## Documentation
 Please check out the documentation for further details and instructions about hardware and software, and user manuals:
