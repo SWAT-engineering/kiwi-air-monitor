@@ -14,6 +14,9 @@
 		},
 		{
 			"path": "server\\demo-config"
+		},
+		{
+			"path": "server\\mqtt-2-influx"
 		}
 	],
 	"settings": {
