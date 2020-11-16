@@ -28,11 +28,13 @@ services:
         hard: 65536
   
   mqtt-2-influx:
-    image: swat/mqtt-2-influx:latest
+    image: swatengineering/mqtt-2-influx:latest
     volumes:
-      - "./conf/clients.toml:/app/conf/clients.toml"
+      - "./conf/clients.toml:/app/conf/clients.toml:ro"
+    restart: unless-stopped
     depends_on:
       - mqtt
+      - influxdb
 
   grafana:
     image: grafana/grafana:7.2.2
@@ -43,3 +45,13 @@ services:
       - './conf/grafana/grafana.ini:/etc/grafana/grafana.ini'
       - './conf/grafana/provisioning/:/etc/grafana/provisioning/'
     restart: unless-stopped
+    depends_on: 
+      - influxdb
+
+  nginx:
+    image: nginx:stable
+    restart: unless-stopped
+    ports:
+      - "4080:80"
+    volumes:
+        - './date/updates:/usr/share/nginx/html:ro'
