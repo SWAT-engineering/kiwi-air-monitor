@@ -1,0 +1,23 @@
+[features]
+ota = true
+mqtt = true
+pressence = false
+co2 = true
+temperature = true
+
+[ota]
+url = "http://kiwi-server:4080/update.bin"
+key = "ota-key.rsa"
+
+[mqtt]
+server = "kiwi-server"
+port = 1883
+username = "kiwi"
+password = "random_4242"
+
+[[wifi]]
+ssid = "Public"
+
+[[wifi]]
+ssid = "Private"
+password = "connection"

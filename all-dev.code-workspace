@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "server\\mqtt-2-influx"
+		},
+		{
+			"path": "device\\config"
 		}
 	],
 	"settings": {
