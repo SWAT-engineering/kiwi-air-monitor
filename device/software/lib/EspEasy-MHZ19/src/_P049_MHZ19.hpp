@@ -34,7 +34,7 @@
 */
 
 // Uncomment the following define to enable the detection range commands:
-//#define ENABLE_DETECTION_RANGE_COMMANDS
+#define ENABLE_DETECTION_RANGE_COMMANDS
 
 #define PLUGIN_049
 #define PLUGIN_ID_049         49
