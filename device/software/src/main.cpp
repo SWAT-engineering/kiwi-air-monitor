@@ -65,6 +65,8 @@ static unsigned long lastRead;
 
 static EspEasyMHZ19 *sensors[4];
 void setup() {
+    Serial.begin(74880);
+    Serial.println("Starting up MHZ19 connections");
     sensors[0] = new EspEasyMHZ19(D5, D8, true, FilterOff);
     sensors[1] = new EspEasyMHZ19(D1, D3, true, FilterOff);
     sensors[2] = new EspEasyMHZ19(D2, D4, true, FilterOff);
@@ -73,11 +75,13 @@ void setup() {
     reset = false;
     lastRead = 0;
     pinMode(LED_BUILTIN, OUTPUT);
+    Serial.println("Starting co2 sensors, wait 3min before we see first values pop up");
 }
 
+constexpr unsigned long calibrateAfter =30*60*1000;
 
 void loop() {
-    if (!reset  && (millis() - start) > (30*60*1000)) {
+    if (!reset  && (millis() - start) > calibrateAfter) {
       for (int i = 0; i < 4; i++) {
         EspEasyMHZ19 *s = sensors[i];
         if (s->isReady() && s->readCO2() > 0) {
@@ -97,12 +101,19 @@ void loop() {
       blinkLedState = !blinkLedState;
     }
     if (millis() - lastRead > (30 * 1000)) {
+      if (reset) {
+        Serial.println("Calibrated!");
+      }
+      else {
+        Serial.printf("Time till calibration: %d\n", (calibrateAfter - (millis() - start)) / (60*1000));
+      }
       for (int i = 0; i < 4; i++) {
         uint16_t value = sensors[i]->readCO2();
         if (value > 0) {
           Serial.printf("CO2 - %d: %d\n", i, value);
         }
       }
+      lastRead += 30*1000;
     }
     delay(1000);
 }
