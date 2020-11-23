@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 
 	"crypto/rand"
 	"crypto/rsa"
@@ -34,10 +35,10 @@ import (
 )
 
 type kiwiConfig struct {
-	Feat features
-	Ota  ota
-	Mqtt mqtt
-	Wifi []wifi
+	Features features
+	Ota      ota
+	Mqtt     mqtt
+	Wifi     []wifi
 }
 
 type features struct {
@@ -63,6 +64,15 @@ type mqtt struct {
 type wifi struct {
 	SSID     string
 	Password string
+}
+
+func pio(args ...string) *exec.Cmd {
+	//.platformio\penv\Scripts\platformio.exe`
+	filepath.Join()
+	run := exec.Command("platformio", args...)
+	run.Stderr = os.Stderr
+	run.Stdout = os.Stdout
+	return run
 }
 
 func (config *kiwiConfig) load() error {
@@ -124,13 +134,11 @@ func prepareOTA() error {
 
 }
 func generateKey() error {
-	// Generate RSA key.
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return err
 	}
 
-	// Encode private key to PKCS#1 ASN.1 PEM.
 	keyPEM := pem.EncodeToMemory(
 		&pem.Block{
 			Type:  "RSA PRIVATE KEY",
@@ -138,7 +146,6 @@ func generateKey() error {
 		},
 	)
 
-	// Write private key to file.
 	if err := ioutil.WriteFile("ota-key.rsa", keyPEM, 0700); err != nil {
 		return err
 	}
