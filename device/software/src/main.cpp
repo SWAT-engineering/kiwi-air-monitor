@@ -10,6 +10,7 @@
 #include "service/mqtt-connection.hpp"
 #include "service/status.hpp"
 
+ADC_MODE(ADC_VCC);
 
 KiwiTimer timer;
 
@@ -37,14 +38,15 @@ void setup() {
   mqttCon = new MqttConnection(wifi, timer);
   ota = new OTAUpdates(wifi, mqttCon, timer);
   sensors = new Sensors(timer);
-  outputs = new Outputs(sensors, mqttCon, timer);
   status = new Status(mqttCon, timer);
+  outputs = new Outputs(sensors, mqttCon, status, timer);
   
 }
 
 
 void loop() { 
   delay(timer.tick());
+  
 }
 #else 
 

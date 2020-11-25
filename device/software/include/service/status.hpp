@@ -6,6 +6,7 @@
 class Status {
 public:
     Status(MqttConnection *mqtt, KiwiTimer &timer);
+    bool shouldShowScreen();
 
 private:
     MqttConnection *mqtt;

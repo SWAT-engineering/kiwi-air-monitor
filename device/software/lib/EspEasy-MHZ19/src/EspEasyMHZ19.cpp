@@ -24,6 +24,7 @@ bool EspEasyMHZ19::isReady() {
 bool EspEasyMHZ19::calibrateZero() {
     if (isReady()) {
         hardware->send_mhzCmd(mhzCmdCalibrateZero);
+        hardware->send_mhzCmd(mhzCmdMeasurementRange2000);
         return true;
     }
     return false;
