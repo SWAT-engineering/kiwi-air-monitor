@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "sensors/sensors.hpp"
 #include "service/mqtt-connection.hpp"
+#include "service/status.hpp"
 #include "shared-timer.hpp"
 #include "mqtt.hpp"
 #include "display.hpp"
@@ -10,7 +11,7 @@
 
 class Outputs {
 public:
-    Outputs(Sensors *sensors, MqttConnection *conn, KiwiTimer &timer);
+    Outputs(Sensors *sensors, MqttConnection *conn, Status *status, KiwiTimer &timer);
 private:
     Mqtt *mqtt;
     Display *display;

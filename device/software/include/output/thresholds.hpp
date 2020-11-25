@@ -6,12 +6,9 @@
 
 enum ThresholdSeverity {
     NONE_EXCEEDED,
-    LEVEL1_INCREASING,
-    LEVEL1_DECREASING,
+    LEVEL1,
     LEVEL2
 };
-
-constexpr uint8_t ThresholdWindow = 32;
 
 class Thresholds {
 public:
@@ -21,9 +18,7 @@ public:
     }
 private:
     ThresholdSeverity severity = NONE_EXCEEDED;
-    uint8_t windowPosition = 0;
-    double window[ThresholdWindow];
-    Smoothed<double, 6> co2Smoothed; // double smoothing, take the smoothed value of the last minute
+    Smoothed<double, 18> co2Smoothed; // smoothed value of the last 3 minute
 
     Sensors *sensor;
     bool measure();

@@ -1,7 +1,7 @@
 #include "output/display.hpp"
 #include "output/logo.h"
 
-Display::Display(Sensors *sensor, KiwiTimer &timer) : source{sensor} {
+Display::Display(Sensors *sensor, Status *status, KiwiTimer &timer) : status{status}, source{sensor} {
     #ifdef KIWI_SCREEN_64
     u8g2 = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE, D1, D2);
     #else
@@ -25,14 +25,15 @@ void Display::renderLogo() {
 bool Display::render() {
     u8g2->clearBuffer();
     if (!filled && millis() < 30000) {
-        // draw logo
+        // still booting up draw logo
         renderLogo();
     }
-    else if (source->getPresence() && visible) {
+    else if ((!source->hasPresence() || source->getPresence()) && status->shouldShowScreen()) {
         if (displayValues()) {
             plotGraph();
         }
         else {
+            // nothing to show yet, so also just draw the logo
             renderLogo();
         }
     }
@@ -40,18 +41,13 @@ bool Display::render() {
     return true;
 }
 
-void Display::setVisible(bool show) {
-    visible = show;
-}
-
 bool Display::updateValues() {
     if (!source->hasCO2()) {
-        filled = false;
         return true;
     }
     double value = source->getCO2();
-    if (isnan(value) || value > 5000) {
-        filled = false;
+    if (value < 100 || isnan(value) || value > 5000) {
+        // skip invalid co2 values
         return true;
     }
     co2Values[minutesPosition % PLOT_SIZE] = value;
@@ -87,6 +83,26 @@ bool Display::displayValues() {
 
 #define GET_VALUE(__i) (co2Values[(minutesPosition - (PLOT_SIZE - (__i))) % PLOT_SIZE])
 
+static double max(double a, double b)
+{
+    return a > b ? a : b;
+}
+
+static void fixRange(double &rangeStart, double &rangeEnd) {
+    if (rangeEnd - rangeStart < 100) {
+        rangeStart -= 50;
+        rangeEnd += 50;
+    }
+    if (rangeEnd - rangeStart < 200) {
+        rangeStart -= 25;
+        rangeEnd += 25;
+    }
+    if (rangeStart < 350) {
+        rangeStart = 350;
+        rangeEnd = max(500, rangeEnd);
+    }
+}
+
 void Display::plotGraph() {
     if (!filled) {
         return;
@@ -109,20 +125,13 @@ void Display::plotGraph() {
     if (isnan(rangeStart)) {
         return;
     }
+    fixRange(rangeStart, rangeEnd);
     double range = rangeEnd - rangeStart;
-    if (range < 100) {
-        rangeStart -= 50;
-        rangeEnd += 50;
-        range = rangeEnd - rangeStart;
-    }
-    Serial.printf("Plotting range: %.0f -- %.0f\n", rangeStart, rangeEnd);
     for (u8g2_uint_t i = 0; i < PLOT_SIZE; i++) {
         double value = GET_VALUE(i);
         if (!isnan(value)) {
-            double y = PLOT_SIZE - (((value - rangeStart) / range) * PLOT_SIZE);
-            Serial.printf(" %.1f=%.1f", value, y);
+            double y = PLOT_SIZE - ((max(0, (value - rangeStart)) / range) * PLOT_SIZE);
             u8g2->drawVLine(GRAPH_X_OFFSET + i, (u8g2_uint_t)round(y), PLOT_SIZE);
         }
     }
-    Serial.println();
 }

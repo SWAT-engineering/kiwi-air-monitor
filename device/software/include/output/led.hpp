@@ -6,8 +6,7 @@
 
 enum WarningLevel {
     Disabled = 0,
-    WarningRising,
-    WarningDecreasing,
+    LightWarning,
     SevereWarning,
     Error,
 };
