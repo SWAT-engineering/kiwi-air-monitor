@@ -24,10 +24,14 @@ import (
 	"os"
 	"os/exec"
 
+	"crypto"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
-	"encoding/pem"
+
+	"encoding/hex"
 
 	"github.com/bmatcuk/doublestar/v2"
 	"github.com/manifoldco/promptui"
@@ -68,7 +72,6 @@ type wifi struct {
 
 func pio(args ...string) *exec.Cmd {
 	//.platformio\penv\Scripts\platformio.exe`
-	filepath.Join()
 	run := exec.Command("platformio", args...)
 	run.Stderr = os.Stderr
 	run.Stdout = os.Stdout
@@ -121,6 +124,48 @@ func flashKiwi() error {
 	return nil
 
 }
+
+func nonnill(errs ...error) error {
+	for _, e := range errs {
+		if e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
+func sign(keyFile string, firmwareFile string) (string, error) {
+	firmware, err := ioutil.ReadFile(firmwareFile)
+	if err != nil {
+		return "", err
+	}
+	md5Sum := md5.Sum(firmware)
+	sha256Sum := sha256.Sum256(firmware)
+
+	keyDer, err := ioutil.ReadFile(keyFile)
+	if err != nil {
+		return "", err
+	}
+	privateKey, err := x509.ParsePKCS1PrivateKey(keyDer)
+	if err != nil {
+		return "", err
+	}
+	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, sha256Sum[:])
+	if err != nil {
+		return "", err
+	}
+	output, err := os.Create("update.bin")
+	if err != nil {
+		return "", err
+	}
+	defer output.Close()
+
+	_, err1 := output.Write(firmware)
+	_, err2 := output.Write(signature)
+	_, err3 := output.Write([]byte{0x00, 0x01, 0x00, 0x00}) // 256 bytes hash
+	return hex.EncodeToString(md5Sum[:]), nonnill(err1, err2, err3)
+}
+
 func prepareOTA() error {
 	if err := compileKiwiFirmware(); err != nil {
 		return err
@@ -129,7 +174,11 @@ func prepareOTA() error {
 	if err := conf.load(); err != nil {
 		return err
 	}
-	log.Printf("%+v", conf)
+	md5sum, err := sign(conf.Ota.Key, "firmware.bin")
+	if err != nil {
+		return err
+	}
+	log.Printf("Upload the update.bin file to the %s server and send: %s as the new firmware version", conf.Ota.URL, md5sum)
 	return nil
 
 }
@@ -139,14 +188,7 @@ func generateKey() error {
 		return err
 	}
 
-	keyPEM := pem.EncodeToMemory(
-		&pem.Block{
-			Type:  "RSA PRIVATE KEY",
-			Bytes: x509.MarshalPKCS1PrivateKey(key),
-		},
-	)
-
-	if err := ioutil.WriteFile("ota-key.rsa", keyPEM, 0700); err != nil {
+	if err := ioutil.WriteFile("ota-key.rsa", x509.MarshalPKCS1PrivateKey(key), 0700); err != nil {
 		return err
 	}
 	log.Println("Written ota-key.rsa, please refer to this file in your config. Never share this file!")
