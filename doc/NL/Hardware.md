@@ -11,11 +11,11 @@ De hardware is ontworpen rondom een ESP8266 platform. De kosten voor alle compon
 - [WS2812B RGB Led](https://www.tinytronics.nl/shop/nl/verlichting/led-digitaal/ws2812b-digitale-5050-rgb-led-printplaat-los-wit): Per apparaat is maar een ledje nodig, maar je kunt ook een hele strip kopen en er andere leuke dingen mee doen. 
 
 Onderdelen die ook nodig zijn, maar waarvan we aannemen dat je die al hebt:
-- USB oplader (500ma zou genoeg moeten zijn)
+- USB oplader (500ma zou genoeg moeten zijn) of alternatief een powerbank, per dag ongeveer 800mAh rekenen.
 - Micro-USB kabel
 - Kabeltjes om de sensors vast te maken aan de hoofdunit (ESP8266)
-- Breadboard en kabeltjes om te experimenteren
 - Soldeerbout
+- Voor exprimenteren: Breadboard en kabeltjes om te experimenteren
   
 ## Stroomverbruik
 
@@ -32,8 +32,8 @@ Hieronder een samenvatting van de verbindingen:
 | --- | --- | --- |
 | MH-Z19B | VCC | 5V |
 | | GND | G (GND) |
-| | TX | D5 |
-| | RX | D8 |
+| | TX (Groene ader) | D5 |
+| | RX (Blauw ader) | D8 |
 | BME280 & SSD1306 | VCC | 3.3V |
 | | GND | G |
 | | SCL/SCK | D1 |
@@ -60,9 +60,21 @@ Hieronder ook het schema voor experimenten met breadboard view.
 
 ## Kabels
 
+### Pluggable-draadjes versie
+
+#### Sensors
+
+**MH-Z19B**: knip de connector die bij de CO2 sensor zit af aan één kant. Knip de bruine, witte en gele aders weg. Er blijven 4 over: zwart, rood, blauw, en groen. Verbind deze 4 kabels in dezelfde volgorde aan 4 pinheaders.
+
+![MH-Z19B connector](../images/wires-mh-z19b-connector.jpg)
+
+
+
+
 TODO: schrijf over kabel boom en plugjes systeem.
 
 ## Behuizing
+
 Om de electronica te beschermen en netjes weg te werken, is het goed om er een behuizing om heen te maken. Er is een ontwerp gemaakt in de vorm van een kiwi vogel dat met een 3D-printer afgedrukt kan worden. In dit model passen precies alle componenten die hierboven beschreven zijn. Als je geen 3D printer tot je beschikking hebt of liever zelf iets anders maakt. Zie hieronder dan ook een aantal tips waar je aan moet denken bij het ontwerp.
 
 ### 3D-printen van behuizing
