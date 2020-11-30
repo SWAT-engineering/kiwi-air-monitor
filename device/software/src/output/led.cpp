@@ -6,17 +6,16 @@ static const unsigned long totalTime = 2000;
 static const unsigned int timeBetweenBreaths = 500;
 
 #define DEMO(__timer, __after,__level) \
-    (__timer)->in(__after, [](void * self) -> bool { \
+    (__timer).in(__after, [](void * self) -> bool { \
         static_cast<BreathingLed *>(self)->start(__level); \
         return false; \
     }, static_cast<void *>(this))
-
-BreathingLed::BreathingLed(Thresholds *thres, KiwiTimer *timer): timer{timer}, thresh{thres}, currentLevel{Disabled} {
+BreathingLed::BreathingLed(Thresholds *thres, KiwiTimer &timer, KiwiTimer *highFreqTimer): timer{highFreqTimer}, thresh{thres}, currentLevel{Disabled} {
     pixel = new Adafruit_NeoPixel(1, D4, NEO_GRB + NEO_KHZ800);
     pixel->begin();
     pixel->clear();
     pixel->show();
-    EVERY(*timer, 10*1000, BreathingLed, updateThresholds);
+    EVERY(timer, 10*1000, BreathingLed, updateThresholds);
     DEMO(timer, 100, LightWarning);
     DEMO(timer, 4000, SevereWarning);
     DEMO(timer, 8000, Disabled);
@@ -55,10 +54,10 @@ void BreathingLed::start(WarningLevel level) {
     blinkStart = millis();
     switch (level) {
         case LightWarning:
-            color = 0xF4A736;
+            color = 0xFFF7BC;
             break;
         case SevereWarning:
-            color = 0xDC050C;
+            color = 0x993404;
             break;
         case Error:
             color = 0x1965B0;

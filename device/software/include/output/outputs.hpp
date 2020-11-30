@@ -11,7 +11,7 @@
 
 class Outputs {
 public:
-    Outputs(Sensors *sensors, MqttConnection *conn, Status *status, KiwiTimer &timer);
+    Outputs(Sensors *sensors, MqttConnection *conn, Status *status, KiwiTimer &timer, KiwiTimer *highResTimer);
 private:
     Mqtt *mqtt;
     Display *display;

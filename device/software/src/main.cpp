@@ -13,6 +13,12 @@
 ADC_MODE(ADC_VCC);
 
 KiwiTimer timer;
+KiwiTimer highResTimer;
+
+bool tickNormalTimer(void *) {
+  highResTimer.in(timer.tick(), tickNormalTimer);
+  return false;
+}
 
 WifiConnection *wifi;
 Sensors *sensors;
@@ -39,14 +45,14 @@ void setup() {
   ota = new OTAUpdates(wifi, mqttCon, timer);
   sensors = new Sensors(timer);
   status = new Status(mqttCon, timer);
-  outputs = new Outputs(sensors, mqttCon, status, timer);
-  
+  outputs = new Outputs(sensors, mqttCon, status, timer, &highResTimer);
+  highResTimer.in(10, tickNormalTimer);
 }
 
 
+
 void loop() { 
-  delay(timer.tick());
-  
+  delay(highResTimer.tick());
 }
 #else 
 

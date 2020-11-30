@@ -13,7 +13,7 @@ enum WarningLevel {
 
 class BreathingLed {
 public:
-    BreathingLed(Thresholds* thresh, KiwiTimer *timer);
+    BreathingLed(Thresholds* thresh, KiwiTimer &timer, KiwiTimer *highFreqTimer);
 
     void start(WarningLevel level);
     void stop();
