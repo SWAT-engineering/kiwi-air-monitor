@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
@@ -30,7 +31,8 @@ func createClientOptions(clientId string, uri *url.URL) *mqtt.ClientOptions {
 	if uri.Scheme == "mqtt" {
 		target = fmt.Sprintf("tcp://%s", uri.Host)
 	} else {
-		opts.TLSConfig.InsecureSkipVerify = true
+		tlsConfig := &tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}
+		opts.SetTLSConfig(tlsConfig)
 		target = fmt.Sprintf("ssl://%s", uri.Host)
 	}
 	if uri.Port() != "" {
