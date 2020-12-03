@@ -26,7 +26,18 @@ func connect(uri *url.URL) mqtt.Client {
 
 func createClientOptions(clientId string, uri *url.URL) *mqtt.ClientOptions {
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s", uri.Host))
+	var target string
+	if uri.Scheme == "mqtt" {
+		target = fmt.Sprintf("tcp://%s", uri.Host)
+	} else {
+		opts.TLSConfig.InsecureSkipVerify = true
+		target = fmt.Sprintf("ssl://%s", uri.Host)
+	}
+	if uri.Port() != "" {
+		target = fmt.Sprintf("%s:%s", target, uri.Port())
+	}
+
+	opts.AddBroker(target)
 	opts.SetUsername(uri.User.Username())
 	password, _ := uri.User.Password()
 	opts.SetPassword(password)
