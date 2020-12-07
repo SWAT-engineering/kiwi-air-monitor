@@ -35,9 +35,6 @@ func createClientOptions(clientId string, uri *url.URL) *mqtt.ClientOptions {
 		opts.SetTLSConfig(tlsConfig)
 		target = fmt.Sprintf("ssl://%s", uri.Host)
 	}
-	if uri.Port() != "" {
-		target = fmt.Sprintf("%s:%s", target, uri.Port())
-	}
 
 	opts.AddBroker(target)
 	opts.SetUsername(uri.User.Username())
