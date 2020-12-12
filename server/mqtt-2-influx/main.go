@@ -19,6 +19,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
@@ -43,8 +44,9 @@ func getMqttTopics() []string {
 var (
 	clientData           map[string]Client
 	mqttURL              string = "mqtt:1883"
+	mqttTLS              bool   = false
 	influxURL            string = "influxdb:8086"
-	influxWriteStatement string = "http://" + influxURL + "/write?db=" + influxDatabase
+	influxWriteStatement string = "calculated-later"
 )
 
 type sensorData struct {
@@ -66,6 +68,7 @@ type Client struct {
 
 type Server struct {
 	MqttAddress   string `toml:"mqttAddress"`
+	MqttTLS       bool   `toml:"mqttTLS"`
 	InfluxAddress string `toml:"influxAddress"`
 }
 
@@ -87,6 +90,7 @@ func loadConfig() error {
 	if len(config.Server.MqttAddress) > 0 {
 		mqttURL = config.Server.MqttAddress
 	}
+	mqttTLS = config.Server.MqttTLS
 	if len(config.Server.InfluxAddress) > 0 {
 		influxURL = config.Server.InfluxAddress
 	}
@@ -124,7 +128,12 @@ func createKeyValuePairs(m map[string]interface{}) string {
 }
 
 func createClient() (libmqtt.Client, error) {
-
+	var tlsConfig *tls.Config
+	if mqttTLS {
+		tlsConfig = &tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}
+	} else {
+		tlsConfig = nil
+	}
 	return libmqtt.NewClient(
 		// enable keepalive (10s interval) with 20% tolerance
 		libmqtt.WithKeepalive(10, 1.2),
@@ -132,6 +141,7 @@ func createClient() (libmqtt.Client, error) {
 		libmqtt.WithAutoReconnect(true),
 		libmqtt.WithBackoffStrategy(time.Second, 5*time.Second, 1.2),
 		libmqtt.WithRouter(libmqtt.NewRegexRouter()),
+		libmqtt.WithCustomTLS(tlsConfig),
 	)
 }
 
