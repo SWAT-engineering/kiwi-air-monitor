@@ -41,6 +41,7 @@ static bool connect(Adafruit_MQTT_Client *mqtt) {
 
     int res = mqtt->connect();
     if (res != 0) {
+        Serial.printf("Not connecting to mqtt: %d\n", res);
         mqtt->disconnect();
         return false;
     }
