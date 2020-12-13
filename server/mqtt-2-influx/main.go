@@ -61,9 +61,9 @@ type Config struct {
 }
 
 type Client struct {
-	Mac  string                 `toml:"mac"`
-	Name string                 `toml:"name"`
-	Tags map[string]interface{} `toml:"tags"`
+	Mac            string                 `toml:"mac"`
+	Name           string                 `toml:"name"`
+	Tags           map[string]interface{} `toml:"tags"`
 	encodedTagLine string
 }
 
@@ -105,8 +105,8 @@ func loadConfig() error {
 	influxWriteStatement = influxURL + "/write?db=" + influxDatabase
 	clientData = make(map[string]Client)
 	for _, client := range config.Clients {
-		clientData[client.Mac] = client
 		client.encodedTagLine = createTagLine(client.Mac, client.Name, client.Tags)
+		clientData[client.Mac] = client
 	}
 	return nil
 }
@@ -138,7 +138,7 @@ func createTagLine(device string, name string, tags map[string]interface{}) stri
 		case float64:
 			fmt.Fprintf(b, ",%s=%.2f", tagEncoding(key), value)
 		case bool:
-			fmt.Fprintf(b, ",%s=%b", tagEncoding(key), value)
+			fmt.Fprintf(b, ",%s=%v", tagEncoding(key), value)
 		case int64:
 			fmt.Fprintf(b, ",%s=%d", tagEncoding(key), value)
 		default:
@@ -200,7 +200,7 @@ func main() {
 			return
 		}
 		defer resp.Body.Close()
-		if resp.StatusCode != 200 {
+		if resp.StatusCode != 204 {
 			log.Printf("Error sending to %s influx: %s", influxLine, resp.Status)
 			if msg, err := ioutil.ReadAll(resp.Body); err == nil {
 				log.Println(string(msg))
