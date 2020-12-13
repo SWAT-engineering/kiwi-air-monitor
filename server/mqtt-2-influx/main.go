@@ -21,13 +21,14 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
 	"time"
-	"net/url"
 
 	"github.com/goiiot/libmqtt"
 	"github.com/pelletier/go-toml"
@@ -44,7 +45,7 @@ func getMqttTopics() []string {
 
 var (
 	clientData           map[string]Client
-	mqtt              *url.URL
+	mqtt                 *url.URL
 	influxWriteStatement string
 )
 
@@ -63,6 +64,7 @@ type Client struct {
 	Mac  string                 `toml:"mac"`
 	Name string                 `toml:"name"`
 	Tags map[string]interface{} `toml:"tags"`
+	encodedTagLine string
 }
 
 type Server struct {
@@ -89,7 +91,7 @@ func loadConfig() error {
 	mqttURL := "mqtt://mqtt:1883"
 	if len(config.Server.MqttAddress) > 0 {
 		mqttURL = config.Server.MqttAddress
-	} 
+	}
 	mqtt, err = url.Parse(mqttURL)
 	if err != nil {
 		return err
@@ -104,6 +106,7 @@ func loadConfig() error {
 	clientData = make(map[string]Client)
 	for _, client := range config.Clients {
 		clientData[client.Mac] = client
+		client.encodedTagLine = createTagLine(client.Mac, client.Name, client.Tags)
 	}
 	return nil
 }
@@ -111,23 +114,35 @@ func loadConfig() error {
 func createInfluxLine(data sensorData) string {
 	client, found := clientData[data.clientMac]
 	if found {
-		return fmt.Sprintf("%s,device=\"%s\",name=\"%s\"%s value=%s", data.kind, data.clientMac, client.Name, createKeyValuePairs(client.Tags), data.value)
+		return fmt.Sprintf("%s,%s value=%s", data.kind, client.encodedTagLine, data.value)
 	}
-	return fmt.Sprintf("%s,device=\"%s\" value=%s", data.kind, data.clientMac, data.value)
+	return fmt.Sprintf("%s,device=%s value=%s", data.kind, data.clientMac, data.value)
 }
 
-func createKeyValuePairs(m map[string]interface{}) string {
+var escaper *strings.Replacer
+
+func tagEncoding(s string) string {
+	if escaper == nil {
+		escaper = strings.NewReplacer("\\", "\\\\", " ", "\\ ", ",", "\\,")
+	}
+	return escaper.Replace(s)
+}
+
+func createTagLine(device string, name string, tags map[string]interface{}) string {
 	b := new(bytes.Buffer)
-	for key, value := range m {
+	fmt.Fprintf(b, "device=%s,name=%s", tagEncoding(device), tagEncoding(name))
+	for key, value := range tags {
 		switch value.(type) {
 		case string:
-			fmt.Fprintf(b, ",%s=\"%s\"", key, strings.Replace(value.(string), "\"", `\"`, -1))
+			fmt.Fprintf(b, ",%s=\"%s\"", tagEncoding(key), tagEncoding(value.(string)))
 		case float64:
-			fmt.Fprintf(b, ",%s=%.2f", key, value)
+			fmt.Fprintf(b, ",%s=%.2f", tagEncoding(key), value)
+		case bool:
+			fmt.Fprintf(b, ",%s=%b", tagEncoding(key), value)
 		case int64:
-			fmt.Fprintf(b, ",%s=%d", key, value)
+			fmt.Fprintf(b, ",%s=%d", tagEncoding(key), value)
 		default:
-			fmt.Fprintf(b, ",%s=\"%s\"", key, value)
+			log.Fatalf("Do now not know how to send: %v to influxdb (tag: %v)", value, key)
 		}
 	}
 	return b.String()
@@ -136,22 +151,22 @@ func createKeyValuePairs(m map[string]interface{}) string {
 func createClient() (libmqtt.Client, error) {
 	extraOptions := make([]libmqtt.Option, 0)
 	if mqtt.Scheme == "mqtts" {
-		extraOptions = append(extraOptions,libmqtt.WithCustomTLS(&tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}))
+		extraOptions = append(extraOptions, libmqtt.WithCustomTLS(&tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}))
 	}
 	if mqtt.User != nil {
 		pw, _ := mqtt.User.Password()
-		extraOptions = append(extraOptions,libmqtt.WithIdentity(mqtt.User.Username(), pw))
+		extraOptions = append(extraOptions, libmqtt.WithIdentity(mqtt.User.Username(), pw))
 
 	}
 	return libmqtt.NewClient(
 		// enable keepalive (10s interval) with 20% tolerance
 		append(extraOptions,
 			libmqtt.WithKeepalive(10, 1.2),
-		// enable auto reconnect and set backoff strategy
-		libmqtt.WithAutoReconnect(true),
-		libmqtt.WithBackoffStrategy(time.Second, 5*time.Second, 1.2),
-		libmqtt.WithRouter(libmqtt.NewRegexRouter()),
-		)...
+			// enable auto reconnect and set backoff strategy
+			libmqtt.WithAutoReconnect(true),
+			libmqtt.WithBackoffStrategy(time.Second, 5*time.Second, 1.2),
+			libmqtt.WithRouter(libmqtt.NewRegexRouter()),
+		)...,
 	)
 }
 
@@ -186,7 +201,10 @@ func main() {
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
-			log.Println("Error sending to influx: {}", resp.Status)
+			log.Printf("Error sending to %s influx: %s", influxLine, resp.Status)
+			if msg, err := ioutil.ReadAll(resp.Body); err == nil {
+				log.Println(string(msg))
+			}
 		}
 	})
 
