@@ -27,6 +27,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"net/url"
 
 	"github.com/goiiot/libmqtt"
 	"github.com/pelletier/go-toml"
@@ -43,10 +44,8 @@ func getMqttTopics() []string {
 
 var (
 	clientData           map[string]Client
-	mqttURL              string = "mqtt:1883"
-	mqttTLS              bool   = false
-	influxURL            string = "influxdb:8086"
-	influxWriteStatement string = "calculated-later"
+	mqtt              *url.URL
+	influxWriteStatement string
 )
 
 type sensorData struct {
@@ -68,7 +67,6 @@ type Client struct {
 
 type Server struct {
 	MqttAddress   string `toml:"mqttAddress"`
-	MqttTLS       bool   `toml:"mqttTLS"`
 	InfluxAddress string `toml:"influxAddress"`
 }
 
@@ -87,14 +85,22 @@ func loadConfig() error {
 	if err := toml.NewDecoder(source).Decode(&config); err != nil {
 		return err
 	}
+
+	mqttURL := "mqtt://mqtt:1883"
 	if len(config.Server.MqttAddress) > 0 {
 		mqttURL = config.Server.MqttAddress
+	} 
+	mqtt, err = url.Parse(mqttURL)
+	if err != nil {
+		return err
 	}
-	mqttTLS = config.Server.MqttTLS
+
+	influxURL := "http://influxdb:8086"
 	if len(config.Server.InfluxAddress) > 0 {
 		influxURL = config.Server.InfluxAddress
 	}
-	influxWriteStatement = "http://" + influxURL + "/write?db=" + influxDatabase
+
+	influxWriteStatement = influxURL + "/write?db=" + influxDatabase
 	clientData = make(map[string]Client)
 	for _, client := range config.Clients {
 		clientData[client.Mac] = client
@@ -128,28 +134,28 @@ func createKeyValuePairs(m map[string]interface{}) string {
 }
 
 func createClient() (libmqtt.Client, error) {
-	var tlsConfig *tls.Config
-	if mqttTLS {
-		tlsConfig = &tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}
-	} else {
-		tlsConfig = nil
+	extraOptions := make([]libmqtt.Option, 0)
+	if mqtt.Scheme == "mqtts" {
+		extraOptions = append(extraOptions,libmqtt.WithCustomTLS(&tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}))
+	}
+	if mqtt.User != nil {
+		pw, _ := mqtt.User.Password()
+		extraOptions = append(extraOptions,libmqtt.WithIdentity(mqtt.User.Username(), pw))
+
 	}
 	return libmqtt.NewClient(
 		// enable keepalive (10s interval) with 20% tolerance
-		libmqtt.WithKeepalive(10, 1.2),
+		append(extraOptions,
+			libmqtt.WithKeepalive(10, 1.2),
 		// enable auto reconnect and set backoff strategy
 		libmqtt.WithAutoReconnect(true),
 		libmqtt.WithBackoffStrategy(time.Second, 5*time.Second, 1.2),
 		libmqtt.WithRouter(libmqtt.NewRegexRouter()),
-		libmqtt.WithCustomTLS(tlsConfig),
+		)...
 	)
 }
 
 func main() {
-	client, err := createClient()
-	if err != nil {
-		log.Fatal(err)
-	}
 	regex, err := regexp.Compile(mqttRegex)
 	if err != nil {
 		log.Fatal(err)
@@ -161,6 +167,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	client, err := createClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	client.HandleTopic(".*", func(client libmqtt.Client, topic string, qos libmqtt.QosLevel, msg []byte) {
 		data, err := parseMqttMessage(topic, msg, regex)
 		if err != nil {
@@ -168,19 +179,20 @@ func main() {
 			return
 		}
 		influxLine := createInfluxLine(data)
-		log.Printf(influxLine)
 		resp, err := http.Post(influxWriteStatement, "application/json", strings.NewReader(influxLine))
 		if err != nil {
 			log.Println(err)
 			return
 		}
-		resp.Body.Close()
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			log.Println("Error sending to influx: {}", resp.Status)
+		}
 	})
 
 	// connect tcp server
 	// TODO there needs to be a warning when connection didn't work
-	err = client.ConnectServer(mqttURL)
-	log.Println(err)
+	err = client.ConnectServer(mqtt.Host)
 	if err != nil {
 		log.Println(err)
 	}
@@ -191,5 +203,6 @@ func main() {
 	}
 	client.Subscribe(topics...)
 
+	log.Println("Registerd MQTT topics, waiting for updates")
 	client.Wait()
 }

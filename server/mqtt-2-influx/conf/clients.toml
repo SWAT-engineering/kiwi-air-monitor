@@ -13,5 +13,5 @@
     building = "main"
 
 [server]
-  influxAddress = "localhost:8086"
-  mqttAddress = "localhost:8883"
+  influxAddress = "http://localhost:8086"
+  mqttAddress = "mqtt://localhost:8883"
