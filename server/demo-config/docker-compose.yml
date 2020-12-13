@@ -30,7 +30,7 @@ services:
   mqtt-2-influx:
     image: swatengineering/mqtt-2-influx:latest
     volumes:
-      - "./conf/clients.toml:/app/conf/clients.toml:ro"
+      - "./conf/clients.toml:/conf/clients.toml:ro"
     restart: unless-stopped
     depends_on:
       - mqtt
