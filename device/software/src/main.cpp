@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#ifndef CALIBRATE
+#if !defined(CALIBRATE) && !defined(MONITOR)
 #include <Wire.h>
 #include "shared-timer.hpp"
 #include "user-config.h"
@@ -54,7 +54,7 @@ void setup() {
 void loop() { 
   delay(highResTimer.tick());
 }
-#else 
+#elif defined(CALIBRATE) 
 
 #include "EspEasyMHZ19.hpp"
 #include <SoftwareSerial.h>
@@ -124,6 +124,73 @@ void loop() {
       lastRead += 30*1000;
     }
     delay(1000);
+}
+#elif defined(MONITOR) 
+
+#include "EspEasyMHZ19.hpp"
+#include <SoftwareSerial.h>
+#include "user-config.h"
+#include "shared-timer.hpp"
+#include "service/wifi-connection.hpp"
+#include "service/mqtt-connection.hpp"
+
+KiwiTimer timer;
+static unsigned long lastRead;
+WifiConnection *wifi;
+MqttConnection *mqttCon;
+
+// CO2 sensors wire:
+// rx  tx
+// d5  d8 --> disable ABC
+// d1  d3 --> disable ABC
+// d2  d4 --> enable ABC
+// d6  d0 --> enable ABC
+
+static EspEasyMHZ19 *sensors[4];
+
+
+
+#define PUBLISH(x, v) if (v > 0) mqttCon->publish(x, v);
+
+void report(double values[4]) {
+  PUBLISH("sensor/CO2_Compare1", values[0]);
+  PUBLISH("sensor/CO2_Compare2", values[1]);
+  PUBLISH("sensor/CO2_Compare3", values[2]);
+  PUBLISH("sensor/CO2_Compare4", values[3]);
+}
+
+
+bool sense(void * unused) {
+  double values[4];
+  for (int i = 0; i < 4; i++) {
+    values[i] = 0;
+    if (sensors[i]->isReady()) {
+      uint16_t co2 = sensors[i]->readCO2();
+      if (co2 > 0) {
+        values[i] = co2;
+      }
+    }
+  }
+  report(values);
+  return true;
+}
+
+void setup() {
+  Serial.begin(74880);
+  wifi = new WifiConnection(timer);
+  mqttCon = new MqttConnection(wifi, timer);
+  Serial.println("Starting up MHZ19 connections");
+  sensors[0] = new EspEasyMHZ19(D5, D8, true, FilterOff);
+  sensors[1] = new EspEasyMHZ19(D1, D3, true, FilterOff);
+  sensors[2] = new EspEasyMHZ19(D2, D4, false, FilterOff);
+  sensors[3] = new EspEasyMHZ19(D6, D0, false, FilterOff);
+  lastRead = 0;
+  timer.every(10 * 1000, sense, NULL);
+}
+
+
+void loop() {
+  delay(timer.tick());
 }
 
 #endif
