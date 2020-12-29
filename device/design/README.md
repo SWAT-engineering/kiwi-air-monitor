@@ -4,4 +4,4 @@ These are the design files for the version1.0 PCB of the Kiwi Air Monitor. The p
 
 All components can be "plugged" into the board on the female header connectors.
 
-See the [../../doc/](../doc/) folder for design documentation.
+See the [../../doc/](../../doc/) folder for design documentation.
