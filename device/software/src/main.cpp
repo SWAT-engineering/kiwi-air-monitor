@@ -37,7 +37,7 @@ Dust: tx: D3. rx: D6
 */
 
 void setup() {
-  Serial.begin(74880);
+  //Serial.begin(74880);
   // setup I2C on the correct pins
   Wire.begin(D2, D1);
   wifi = new WifiConnection(timer);
