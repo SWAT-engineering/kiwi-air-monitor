@@ -40,7 +40,7 @@ Hieronder een samenvatting van de verbindingen:
 | | SDA | D2 |
 |WS2812B | VDD | 5V |
 | | VSS | G |
-| | DIN | D4|
+| | DIN | D3|
 | RCWL-0516 | VCC/VIN | 5V |
 | | VOUT | D0 |
 | | GND | G |
