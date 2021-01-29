@@ -1,4 +1,0 @@
-(sym_lib_table
-  (lib (name mh_z19b)(type Legacy)(uri ${KIPRJMOD}/KiwiAirMonitorModules/mh_z19b.lib)(options "")(descr ""))
-  (lib (name KiwiAirMonitorModules)(type Legacy)(uri ${KIPRJMOD}/KiwiAirMonitorModules/Kiwi_EasyBoardv1.0.lib)(options "")(descr ""))
-)
