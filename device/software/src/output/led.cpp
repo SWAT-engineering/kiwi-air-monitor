@@ -11,7 +11,7 @@ static const unsigned int timeBetweenBreaths = 500;
         return false; \
     }, static_cast<void *>(this))
 BreathingLed::BreathingLed(Thresholds *thres, KiwiTimer &timer, KiwiTimer *highFreqTimer): timer{highFreqTimer}, thresh{thres}, currentLevel{Disabled} {
-    pixel = new Adafruit_NeoPixel(1, D4, NEO_GRB + NEO_KHZ800);
+    pixel = new Adafruit_NeoPixel(1, D3, NEO_GRB + NEO_KHZ800);
     pixel->begin();
     pixel->clear();
     pixel->show();

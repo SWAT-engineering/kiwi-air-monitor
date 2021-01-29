@@ -164,10 +164,11 @@ bool sense(void * unused) {
   double values[4];
   for (int i = 0; i < 4; i++) {
     values[i] = 0;
-    if (sensors[i]->isReady()) {
+    if (sensors[i] && sensors[i]->isReady()) {
       uint16_t co2 = sensors[i]->readCO2();
       if (co2 > 0) {
         values[i] = co2;
+        Serial.println(co2);
       }
     }
   }
@@ -175,17 +176,23 @@ bool sense(void * unused) {
   return true;
 }
 
+bool resetSensor(void *unused) {
+  sensors[3]->reset();
+  return false;
+}
+
 void setup() {
   Serial.begin(74880);
   wifi = new WifiConnection(timer);
   mqttCon = new MqttConnection(wifi, timer);
   Serial.println("Starting up MHZ19 connections");
-  sensors[0] = new EspEasyMHZ19(D5, D8, true, FilterOff);
-  sensors[1] = new EspEasyMHZ19(D1, D3, true, FilterOff);
-  sensors[2] = new EspEasyMHZ19(D2, D4, false, FilterOff);
+  //sensors[0] = new EspEasyMHZ19(D5, D8, false, FilterOff);
+  //sensors[1] = new EspEasyMHZ19(D1, D3, true, FilterOff);
+  //sensors[2] = new EspEasyMHZ19(D2, D4, false, FilterOff);
   sensors[3] = new EspEasyMHZ19(D6, D0, false, FilterOff);
   lastRead = 0;
   timer.every(10 * 1000, sense, NULL);
+  timer.in(3 * 60 * 1000, resetSensor, NULL);
 }
 
 
