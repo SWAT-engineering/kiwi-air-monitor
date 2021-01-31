@@ -1,18 +1,6 @@
 # In gebruik nemen
 
-Als je de hardware en software geinstalleerd en geconfigureerd hebt, komt de volgende stap: het klaar maken voor gebruik. In dit document staat uitgelegd hoe de Kiwi air monitor gecalibreerd moet worden, waar je rekening mee moet houden bij het ophangen van de kiwi en hoe je software updates kunt uitvoeren. De handleiding voor de eindgebruikers is in een appart document te vinden. 
-
-## Calibratie
-De CO2 sensor moet eenmalig gecalibreerd worden. Doe dit *voor* je de Kiwi-air-monitor aan de muur hangt, want de calibratie gebeurd bij voorkeur buiten, en zonder enige encapsulatie van de sensor.
-
-Volg hiervoor de volgende stappen:
-
-- Sluit een of meerdere co2 sensors zoals beschreven in het calibratie schema
-- Upload het calibratie programma naar die esp8266
-- Ontkoppel de esp8266
-- Neem het mee naar buiten op een droge dag, sluit de esp8266 aan op stroom.
-- Wacht 30 minuten, het ledje op de esp8266 zal gaan knipperen om aan te geven dat de calibratie voltooid is.
-
+Als je de hardware en software geinstalleerd en geconfigureerd hebt, komt de volgende stap: het klaar maken voor gebruik. In dit document staat uitgelegd waar je rekening mee moet houden bij het ophangen van de kiwi en hoe je software updates kunt uitvoeren. De handleiding voor de eindgebruikers is in een appart document te vinden.
 
 ## Ophangen
 Bij het ophangen van de sensor moet een geschikte plek gezocht worden in de ruimte. Houd hierbij rekening met het volgende:

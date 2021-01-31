@@ -7,7 +7,7 @@ De software voor de Kiwi air monitor is ontwikkeld voor dit project en maakt geb
 - [Adafruit BME280](https://github.com/adafruit/Adafruit_BME280_Library)
 - [Adafruit NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel)
 - [Arduino Timer](https://github.com/contrem/arduino-timer)
-- [ESPEasy's MH-Z19B libraries extract](https://github.com/letscontrolit/ESPEasy/blob/mega/src/_P049_MHZ19.ino)
+- [WifWafs MH-Z19](https://github.com/WifWaf/MH-Z19)
 
 ## Configuratie instructies
 
