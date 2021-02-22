@@ -12,6 +12,9 @@
 #define KIWI_WIFI_SSID ""
 #define KIWI_WIFI_PASSWORD "" // leave empty string if not encrypted wifi
 
+#define KIWI_WIFI_SSID2 "" // optional fall-back wifi connection
+#define KIWI_WIFI_PASSWORD2 "" // leave empty string if not encrypted wifi
+
 #define KIWI_MQTT_SERVER "" 
 #define KIWI_MQTT_PORT 1883
 #define KIWI_MQTT_USERNAME "iot" // remove if no auth

@@ -12,7 +12,12 @@ WifiConnection::WifiConnection(KiwiTimer &timer): connected{false} {
 }
 
 static void addAccessPoints(ESP8266WiFiMulti &wifi) {
+    #ifdef KIWI_WIFI_SSID
     wifi.addAP(KIWI_WIFI_SSID, KIWI_WIFI_PASSWORD);
+    #endif
+    #ifdef KIWI_WIFI_SSID2
+    wifi.addAP(KIWI_WIFI_SSID2, KIWI_WIFI_PASSWORD2);
+    #endif
 }
 #ifndef KIWI_WIFI_CONNECT_TIME
 #define KIWI_WIFI_CONNECT_TIME 5000
@@ -26,7 +31,7 @@ bool WifiConnection::checkConnections() {
         Serial.printf("Wifi: %d\n", connected);
     }
     else if (!connected) {
-        Serial.printf("Wifi not conneted: %d\n", connectResult);
+        Serial.printf("Wifi not connected: %d\n", connectResult);
     }
     return true;
 }
