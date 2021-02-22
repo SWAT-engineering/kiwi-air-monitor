@@ -23,15 +23,21 @@ MqttConnection::MqttConnection(WifiConnection *wifi, KiwiTimer &timer): wifi{wif
 }
 
 void MqttConnection::setWill(const char *subTopic, const char *value) {
+#ifdef KIWI_MQTT 
     char *fullMessage = new char[64];
     sprintf(topicBuffer, "kiwi/%s/%s", WiFi.macAddress().c_str(),subTopic);
     mqtt->will(fullMessage, value);
+#endif
 }
 
 bool MqttConnection::subscribe(const char *topic, SubscribeCallbackBufferType callback) {
+#ifdef KIWI_MQTT 
     auto sub = new Adafruit_MQTT_Subscribe(mqtt, topic);
     sub->setCallback(callback);
     return mqtt->subscribe(sub);
+#else
+    return true;
+#endif
 }
 
 static bool connect(Adafruit_MQTT_Client *mqtt) {
@@ -57,11 +63,15 @@ bool MqttConnection::publish(const char *measurement, double value, uint8_t qos)
 }
 
 bool MqttConnection::publish(const char *measurement, const char* value, uint8_t qos) {
+#ifdef KIWI_MQTT 
     if (wifi->isConnected() && connect(mqtt) && value != nullptr) {
         strcpy(measurementName, measurement);
         return mqtt->publish(topicBuffer, value, qos);
     }
     return false;
+#else
+    return true;
+#endif
 }
 
 bool MqttConnection::process() {

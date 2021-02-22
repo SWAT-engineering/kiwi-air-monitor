@@ -4,7 +4,7 @@
 
 Mqtt::Mqtt(Sensors *sensors, MqttConnection *mqtt, KiwiTimer &timer): sensors{sensors}, mqtt{mqtt} {
 #ifdef KIWI_MQTT 
-    EVERY(timer, 10*1000, Mqtt, publishAll);
+    EVERY(timer, 60*1000, Mqtt, publishAll);
 #endif
 }
 
