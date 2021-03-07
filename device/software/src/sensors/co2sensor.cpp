@@ -36,7 +36,7 @@ uint16_t CO2Sensor::measure() {
     if (hardware.errorCode == RESULT_OK) {
         if (value > 100 && value < 5000) {
             errors = 0;
-            return value;
+            return value + 15; // we add 15 since base levels aren't at 400, but 415
         }
     }
     errors++;
