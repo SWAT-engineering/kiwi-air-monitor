@@ -90,7 +90,7 @@ static uint32_t applyBrightness(uint32_t color, uint8_t brightness) {
 }
 
 static const uint8_t minBrightness = 48;
-static const uint8_t maxBrightness = 128;
+static const uint8_t maxBrightness = 250;
 
 static uint32_t calculateColor(float position, uint32_t color) {
     double breath = minBrightness + (sin(PI * position) * (maxBrightness - minBrightness));
