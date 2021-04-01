@@ -54,6 +54,10 @@ static bool connect(Adafruit_MQTT_Client *mqtt) {
     return true;
 }
 
+bool MqttConnection::isConnected() {
+    return mqtt->connected();
+}
+
 bool MqttConnection::publish(const char *measurement, double value, uint8_t qos) {
     if (isnan(value)) {
         return false;

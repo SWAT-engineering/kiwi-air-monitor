@@ -16,6 +16,8 @@ public:
     bool publish(const char *subTopic, double value, uint8_t qos = 0);
     // null is dropped
     bool publish(const char *subTopic, const char *value, uint8_t qos = 0);
+
+    bool isConnected();
 private:
     Client *client;
     Adafruit_MQTT_Client *mqtt;

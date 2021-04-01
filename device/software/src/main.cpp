@@ -43,7 +43,7 @@ void setup() {
   mqttCon = new MqttConnection(wifi, timer);
   ota = new OTAUpdates(wifi, mqttCon, timer);
   sensors = new Sensors(timer);
-  status = new Status(mqttCon, timer);
+  status = new Status(wifi, mqttCon, timer);
   outputs = new Outputs(sensors, mqttCon, status, timer, &highResTimer);
   highResTimer.in(10, tickNormalTimer);
 }

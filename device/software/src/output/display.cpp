@@ -22,17 +22,28 @@ void Display::renderLogo() {
     u8g2->drawXBM((128 - KIWI_LOGO_WIDTH) / 2, 0, KIWI_LOGO_WIDTH, KIWI_LOGO_HEIGHT, KIWI_LOGO);
 }
 
+
 bool Display::render() {
     u8g2->clearBuffer();
-    if (!filled && millis() < 30000) {
+    if (!filled && millis() < 20000) {
         // still booting up draw logo
         renderLogo();
     }
+    else if (!filled && millis() < 35000) {
+        // print mac address during boot
+        u8g2->setFont(u8g2_font_fur14_tf);
+        u8g2->setCursor(0,14);
+        u8g2->printf("w: %d m: %d", status->wifiConnected(), status->mqttConnected());
+        u8g2->setFont(u8g2_font_fur11_tf);
+        u8g2->setCursor(0,32);
+        u8g2->print(WiFi.macAddress().c_str());
+    }
     else if ((!source->hasPresence() || source->getPresence()) && status->shouldShowScreen()) {
-        if (displayValues()) {
+        bool shouldRender = source->hasPresence() || (filled && maxValue() > 550) || !filled; // don't render if we are below 550 for the whole period and we cannot detect movement
+        if (shouldRender && displayValues()) {
             plotGraph();
         }
-        else {
+        else if (shouldRender) {
             // nothing to show yet, so also just draw the logo
             renderLogo();
         }
@@ -82,6 +93,18 @@ bool Display::displayValues() {
 }
 
 #define GET_VALUE(__i) (co2Values[(minutesPosition - (PLOT_SIZE - (__i))) % PLOT_SIZE])
+
+double Display::maxValue() {
+    double result = 0;
+    for (u8g2_uint_t i = 1; i < PLOT_SIZE; i++) {
+        double value = GET_VALUE(i);
+        if (isnan(value)) {
+            continue;
+        }
+        result = max(result, value);
+    }
+    return result;
+}
 
 static double max(double a, double b)
 {

@@ -25,4 +25,5 @@ private:
     void renderLogo();
     bool displayValues();
     void plotGraph();
+    double maxValue();
 };

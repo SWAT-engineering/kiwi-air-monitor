@@ -5,7 +5,7 @@ static const char* DISPLAY_ON = "on";
 
 static bool showDisplay = true;
 
-Status::Status(MqttConnection *mqtt, KiwiTimer &timer): mqtt(mqtt) {
+Status::Status(WifiConnection *wifi, MqttConnection *mqtt, KiwiTimer &timer): wifi(wifi), mqtt(mqtt) {
     EVERY(timer, 60*1000, Status, update);
 
     mqtt->subscribe("kiwi/all/display", [](char* buf, uint16_t len) -> void {
@@ -18,6 +18,14 @@ Status::Status(MqttConnection *mqtt, KiwiTimer &timer): mqtt(mqtt) {
             }
         }
     });
+}
+
+bool Status::mqttConnected() {
+    return mqtt->isConnected();
+}
+
+bool Status::wifiConnected() {
+    return wifi->isConnected();
 }
 
 bool Status::shouldShowScreen() {
