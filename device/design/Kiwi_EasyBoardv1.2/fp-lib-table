@@ -1,0 +1,6 @@
+(fp_lib_table
+  (lib (name KiwiAirMonitorModules)(type KiCad)(uri ${KIPRJMOD}/KiwiAirMonitorModules/KiwiAirMonitorModules.pretty)(options "")(descr ""))
+  (lib (name eagle-libs-master)(type KiCad)(uri ${KIPRJMOD}/KiwiAirMonitorModules/eagle-libs-master)(options "")(descr ""))
+  (lib (name mh-z19b)(type KiCad)(uri ${KIPRJMOD}/KiwiAirMonitorModules/mh-z19b.pretty)(options "")(descr ""))
+  (lib (name Panelization)(type KiCad)(uri ${KIPRJMOD}/KiwiAirMonitorModules/Panelization.pretty)(options "")(descr ""))
+)
