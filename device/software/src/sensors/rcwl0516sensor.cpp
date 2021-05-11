@@ -1,11 +1,12 @@
 #include <Arduino.h>
 #include "sensors/rcwl0516sensor.hpp"
 
+#define RCWL_PIN (D6)
 #define RECENT_MOVEMENT (2 * 60 * 1000ul)
 #define AMOUNT_OF_MEASUREMENTS (sizeof(lastSeen) / sizeof(lastSeen[0]))
 
 Rcwl0516Sensor::Rcwl0516Sensor(KiwiTimer &timer): seenOffset{0} {
-      pinMode(D0, INPUT);
+      pinMode(RCWL_PIN, INPUT);
       for (unsigned int i = 0; i < AMOUNT_OF_MEASUREMENTS; i++) {
           lastSeen[i] = -(2 * RECENT_MOVEMENT);
       }
@@ -16,7 +17,7 @@ bool Rcwl0516Sensor::presenceDetected() {
     return (millis() - lastSeen[seenOffset]) < RECENT_MOVEMENT;
 }
 bool Rcwl0516Sensor::sense() {
-    if (digitalRead(D0) == HIGH) {
+    if (digitalRead(RCWL_PIN) == HIGH) {
         lastSeen[seenOffset] = millis();
         seenOffset = (seenOffset + 1) % AMOUNT_OF_MEASUREMENTS;
     }
