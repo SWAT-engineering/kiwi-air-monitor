@@ -55,7 +55,11 @@ static bool connect(Adafruit_MQTT_Client *mqtt) {
 }
 
 bool MqttConnection::isConnected() {
+#ifdef KIWI_MQTT
     return mqtt->connected();
+#else
+    return false;
+#endif
 }
 
 bool MqttConnection::publish(const char *measurement, double value, uint8_t qos) {
