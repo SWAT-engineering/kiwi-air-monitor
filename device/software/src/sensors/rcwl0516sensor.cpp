@@ -7,8 +7,9 @@
 
 Rcwl0516Sensor::Rcwl0516Sensor(KiwiTimer &timer): seenOffset{0} {
       pinMode(RCWL_PIN, INPUT);
+      unsigned long now = millis();
       for (unsigned int i = 0; i < AMOUNT_OF_MEASUREMENTS; i++) {
-          lastSeen[i] = -(2 * RECENT_MOVEMENT);
+          lastSeen[i] = now;
       }
       EVERY(timer, 2500, Rcwl0516Sensor, sense);
 }
