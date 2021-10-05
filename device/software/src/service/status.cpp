@@ -36,4 +36,5 @@ bool Status::update() {
     mqtt->publish("state/Active", "true");
     mqtt->publish("state/Memory", ESP.getFreeHeap());
     mqtt->publish("state/Voltage", ESP.getVcc() / 1024.0);
+    return true;
 }
