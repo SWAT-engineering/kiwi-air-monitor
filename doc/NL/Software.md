@@ -13,6 +13,10 @@ De software voor de Kiwi air monitor is ontwikkeld voor dit project en maakt geb
 
 Het project wordt gecompileerd met [Platform IO](https://platformio.org/). 
 
+In de bestandsmap device\software\include staat het bestand user-config-template.h, in dit bestand kan persoonlijke informatie worden aangepast.
+Dit betreft informatie zoals wifi en MQTT credentials. is hier geen noodzaak voor dan hoeft het bestand niet aangepast te worden.
+
+Na het aanpassen van het bestand dient deze opgeslagen te worden als user-config.h, belangrijk is dat het nieuw opgeslagen bestand in de bestandsmap staat als de template.
 TODO: beschrijf hier de configuratie instructies
 
 ## Uploaden van firmware
