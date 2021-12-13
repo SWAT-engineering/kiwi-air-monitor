@@ -16,9 +16,9 @@ BreathingLed::BreathingLed(Thresholds *thres, KiwiTimer &timer, KiwiTimer *highF
     pixel->clear();
     pixel->show();
     EVERY(timer, 10*1000, BreathingLed, updateThresholds);
-    DEMO(timer, 100, LightWarning);
-    DEMO(timer, 4000, SevereWarning);
-    DEMO(timer, 8000, Disabled);
+    DEMO(timer, 10000, LightWarning);
+    DEMO(timer, 20000, SevereWarning);
+    DEMO(timer, 30000, Disabled);
 }
 
 
@@ -54,7 +54,7 @@ void BreathingLed::start(WarningLevel level) {
     blinkStart = millis();
     switch (level) {
         case LightWarning:
-            color = 0xFFF7BC;
+            color = 0xFB9A29;
             break;
         case SevereWarning:
             color = 0x993404;
