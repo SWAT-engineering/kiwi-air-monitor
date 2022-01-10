@@ -5,6 +5,9 @@
 static void addAccessPoints(ESP8266WiFiMulti &wifi);
 
 WifiConnection::WifiConnection(KiwiTimer &timer): connected{false} {
+    String hostname = "KIWI-" + WiFi.macAddress();
+    hostname.replace(":", "");
+    WiFi.hostname(hostname.c_str());
     WiFi.persistent(false);
     WiFi.mode(WIFI_STA);
     addAccessPoints(wifi);
