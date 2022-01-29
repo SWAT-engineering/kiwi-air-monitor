@@ -8,7 +8,7 @@ Display::Display(Sensors *sensor, Status *status, KiwiTimer &timer) : status{sta
     u8g2 = new U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE, D1, D2);
     #endif
     u8g2->begin();
-    EVERY(timer, 10*1000, Display, render);
+    EVERY(timer, 1000, Display, render);
     EVERY(timer, PIXEL_DURATION, Display, updateValues);
     for (u8g2_uint_t i = 0; i < PLOT_SIZE; i++) {
         co2Values[i] = 0;

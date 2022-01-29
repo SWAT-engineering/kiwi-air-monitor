@@ -20,6 +20,9 @@
 		},
 		{
 			"path": "device\\config"
+		},
+		{
+			"path": "tmp"
 		}
 	],
 	"settings": {
@@ -39,7 +42,11 @@
 			"limits": "cpp",
 			"stdexcept": "cpp",
 			"optional": "cpp",
-			"atomic": "cpp"
+			"atomic": "cpp",
+			"algorithm": "cpp",
+			"xhash": "cpp",
+			"xlocnum": "cpp",
+			"cstdlib": "cpp"
 		}
 	}
 }
