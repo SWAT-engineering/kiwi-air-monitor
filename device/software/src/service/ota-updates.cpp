@@ -30,7 +30,7 @@ OTAUpdates::OTAUpdates(WifiConnection *wifi, MqttConnection *mqtt, KiwiTimer &ti
 
 bool OTAUpdates::reportState() {
     if (wifi->isConnected()) {
-        return !mqtt->publish("state/firmware", ESP.getSketchMD5().c_str());
+        return !mqtt->publish("state/firmware", currentSum);
     }
     return true;
 }
