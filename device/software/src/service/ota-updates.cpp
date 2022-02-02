@@ -14,7 +14,7 @@ BearSSL::SigningVerifier sign(&signPubKey);
 OTAUpdates::OTAUpdates(WifiConnection *wifi, MqttConnection *mqtt, KiwiTimer &timer):  mqtt{mqtt}, wifi{wifi} {
 
     EVERY(timer, 60*1000, OTAUpdates, checkOta);
-    EVERY(timer, 10*1000, OTAUpdates, reportState);
+    EVERY(timer, 60*1000, OTAUpdates, reportState);
 
     memcpy(currentSum, ESP.getSketchMD5().c_str(), MD5_TEXT_SIZE + 1);
     memcpy(otaSum, currentSum, MD5_TEXT_SIZE + 1);
@@ -30,7 +30,7 @@ OTAUpdates::OTAUpdates(WifiConnection *wifi, MqttConnection *mqtt, KiwiTimer &ti
 
 bool OTAUpdates::reportState() {
     if (wifi->isConnected()) {
-        return !mqtt->publish("state/firmware", currentSum);
+        mqtt->publish("state/firmware", currentSum);
     }
     return true;
 }
