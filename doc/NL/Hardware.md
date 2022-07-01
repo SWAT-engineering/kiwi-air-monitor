@@ -8,7 +8,7 @@ Om alle componenten op een makkelijke en zekere manier met elkaar te verbinden h
 
 ## Bestellijst 
 
-De hardware is ontworpen rondom een ESP8266 platform. De kosten voor alle componentne zijn ongeveer 45-50 euro per apparaat. Hieronder links naar de verschillende componenten (hoeft niet perse daar gekocht te worden). 
+De hardware is ontworpen rondom een ESP8266 platform. De kosten voor alle componenten zijn ongeveer 45-50 euro per apparaat. Hieronder links naar de verschillende componenten (hoeft niet perse daar gekocht te worden). 
 
 - [Wemos D1 Mini - ESP8266-12F](https://www.tinytronics.nl/shop/en/communication/wi-fi/d1-mini-esp8266-12f-ch340) Zorg ervoor dat je de versie koopt met de "deksel" deze is FCC gekeurd en geeft minder storing op de bewegingssensor.
 - [Winsen MH-Z19C CO2 Sensor](https://www.tinytronics.nl/shop/nl/sensoren/temperatuur-lucht-vochtigheid/winsen-mh-z19c-co2-sensor-met-kabel): We gebruiken nu de **versie C**. Deze is stabieler dan de versie B en volgens de specificaties ook nauwkeuriger. Deze versie word op het PCB aangesloten met het bijgeleverde kabeltje via een 7-pins PicoBlade connector. Vanwege hoge temperaturen word solderen direct op de sensor afgeraden. De MH-Z19 is een NDIR-type CO2 sensor, die na calibratie een goede sensitiviteit heeft. De nauwkeurigheid is echter niet vergelijkbaaar met een industriele sensor (4 a 5 keer zo duur). De echte CO2 waarde kan ongeveer 50 ppm hoger of lager zijn, maar de trend en de grove waardes zijn voor dit doeleinde meer dan genoeg.
@@ -116,7 +116,7 @@ TODO: link naar 3D model + extra uitleg? eventueel een foto?
 
 ### Adviezen voor eigen ontwerp
 
-- Zorg ervoor dat componenent niet te dicht bij elkaar zitten
+- Zorg ervoor dat componenenten niet te dicht bij elkaar zitten
 - De CO2 sensor wil graag frisse lucht, hoe er rekening mee dat er genoeg frisse lucht langs kan stromen. Zowel voor afkoeling als voor accurate meting.
 - Temperatuur en lucht vochtigheids sensor willen ook frisse lucht, en hebben de voorkeur om niet te warm te worden van componenten om hen heen.
 - de bewegings sensor kan storing krijgen van de ESP8266 chip, dus probeer ze niet te dicht bij elkaar te zetten.
